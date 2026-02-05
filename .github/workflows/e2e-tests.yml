@@ -1,0 +1,201 @@
+name: E2E Tests
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Setup: create test fixtures ──────────────────────────────
+      - name: Create test fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Single file
+          mkdir -p /tmp/e2e-src
+          echo "hello from single file" > /tmp/e2e-src/single.txt
+
+          # Multiple files
+          echo "file-a content" > /tmp/e2e-src/file-a.txt
+          echo "file-b content" > /tmp/e2e-src/file-b.txt
+
+          # Nested directory structure
+          mkdir -p /tmp/e2e-src/nested/sub1/sub2
+          echo "top level" > /tmp/e2e-src/nested/top.txt
+          echo "sub1 level" > /tmp/e2e-src/nested/sub1/mid.txt
+          echo "sub2 level" > /tmp/e2e-src/nested/sub1/sub2/deep.txt
+
+      # ── Test 1: Single file sync ─────────────────────────────────
+      - name: "Test 1: Single file sync"
+        uses: ./
+        with:
+          sources: /tmp/e2e-src/single.txt
+          mode: sync
+          remoteType: local
+          remotePath: /tmp/e2e-dest-1
+
+      - name: "Verify Test 1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/e2e-dest-1/single.txt
+          diff /tmp/e2e-src/single.txt /tmp/e2e-dest-1/single.txt
+          echo "✓ Test 1 passed: single file sync"
+
+      # ── Test 2: Multiple files ───────────────────────────────────
+      - name: "Test 2: Multiple files (comma-separated)"
+        uses: ./
+        with:
+          sources: "/tmp/e2e-src/file-a.txt, /tmp/e2e-src/file-b.txt"
+          mode: copy
+          remoteType: local
+          remotePath: /tmp/e2e-dest-2
+
+      - name: "Verify Test 2"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/e2e-dest-2/file-a.txt
+          test -f /tmp/e2e-dest-2/file-b.txt
+          diff /tmp/e2e-src/file-a.txt /tmp/e2e-dest-2/file-a.txt
+          diff /tmp/e2e-src/file-b.txt /tmp/e2e-dest-2/file-b.txt
+          echo "✓ Test 2 passed: multiple files"
+
+      # ── Test 3: Folder recursive ─────────────────────────────────
+      - name: "Test 3: Folder recursive"
+        uses: ./
+        with:
+          sources: /tmp/e2e-src/nested
+          recursive: 'true'
+          mode: sync
+          remoteType: local
+          remotePath: /tmp/e2e-dest-3
+
+      - name: "Verify Test 3"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/e2e-dest-3/nested/top.txt
+          test -f /tmp/e2e-dest-3/nested/sub1/mid.txt
+          test -f /tmp/e2e-dest-3/nested/sub1/sub2/deep.txt
+          echo "✓ Test 3 passed: folder recursive"
+
+      # ── Test 4: Folder non-recursive ─────────────────────────────
+      - name: "Test 4: Folder non-recursive"
+        uses: ./
+        with:
+          sources: /tmp/e2e-src/nested
+          recursive: 'false'
+          mode: copy
+          remoteType: local
+          remotePath: /tmp/e2e-dest-4
+
+      - name: "Verify Test 4"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/e2e-dest-4/nested/top.txt
+          # sub-directories should NOT have been copied
+          test ! -f /tmp/e2e-dest-4/nested/sub1/mid.txt
+          echo "✓ Test 4 passed: folder non-recursive"
+
+      # ── Test 5: Sync deletes extra remote files ──────────────────
+      - name: "Setup Test 5"
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/e2e-dest-5
+          echo "extra file" > /tmp/e2e-dest-5/extra.txt
+          echo "will be kept" > /tmp/e2e-dest-5/single.txt
+
+      - name: "Test 5: Sync mode deletes extra files"
+        uses: ./
+        with:
+          sources: /tmp/e2e-src/single.txt
+          mode: sync
+          remoteType: local
+          remotePath: /tmp/e2e-dest-5
+
+      - name: "Verify Test 5"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/e2e-dest-5/single.txt
+          test ! -f /tmp/e2e-dest-5/extra.txt
+          echo "✓ Test 5 passed: sync deleted extra file"
+
+      # ── Test 6: Copy preserves extra remote files ────────────────
+      - name: "Setup Test 6"
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/e2e-dest-6
+          echo "extra file" > /tmp/e2e-dest-6/extra.txt
+
+      - name: "Test 6: Copy mode preserves extra files"
+        uses: ./
+        with:
+          sources: /tmp/e2e-src/single.txt
+          mode: copy
+          remoteType: local
+          remotePath: /tmp/e2e-dest-6
+
+      - name: "Verify Test 6"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/e2e-dest-6/single.txt
+          test -f /tmp/e2e-dest-6/extra.txt
+          echo "✓ Test 6 passed: copy preserved extra file"
+
+      # ── Test 7: Dry run ──────────────────────────────────────────
+      - name: "Test 7: Dry run"
+        uses: ./
+        with:
+          sources: /tmp/e2e-src/single.txt
+          mode: sync
+          remoteType: local
+          remotePath: /tmp/e2e-dest-7
+          dryRun: 'true'
+
+      - name: "Verify Test 7"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -d /tmp/e2e-dest-7 || test ! -f /tmp/e2e-dest-7/single.txt
+          echo "✓ Test 7 passed: dry run did not transfer files"
+
+      # ── Test 8: rclone already installed (skip install) ──────────
+      - name: "Install rclone manually for Test 8"
+        shell: bash
+        run: curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: "Test 8: Use pre-installed rclone"
+        uses: ./
+        with:
+          sources: /tmp/e2e-src/single.txt
+          mode: copy
+          remoteType: local
+          remotePath: /tmp/e2e-dest-8
+          installRclone: 'true'
+
+      - name: "Verify Test 8"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/e2e-dest-8/single.txt
+          echo "✓ Test 8 passed: used pre-installed rclone"
+
+      # ── Summary ──────────────────────────────────────────────────
+      - name: Summary
+        shell: bash
+        run: echo "All E2E tests passed!"

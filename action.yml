@@ -1,0 +1,95 @@
+name: 'rclone Publish'
+description: 'Install rclone and publish files/folders to any rclone-supported remote storage backend'
+
+inputs:
+  sources:
+    description: >
+      Comma or newline-separated list of files and/or folders to publish.
+      Example: 'dist/,README.md' or one path per line.
+    required: true
+
+  recursive:
+    description: 'Recursively copy folder contents. When false, only top-level files in folders are copied.'
+    required: false
+    default: 'true'
+
+  mode:
+    description: >
+      Transfer mode.
+      "sync" (default): one-way mirror — copies source to remote and deletes remote files not in source.
+      "copy": additive only — copies source to remote, never deletes anything on the remote.
+    required: false
+    default: 'sync'
+
+  remoteType:
+    description: 'rclone backend type (e.g. sftp, s3, webdav, ftp, local). Required unless rcloneConfig is provided.'
+    required: false
+
+  remoteHost:
+    description: 'Remote server address/hostname. Required unless rcloneConfig is provided or remoteType is "local".'
+    required: false
+
+  remotePort:
+    description: 'Remote server port (optional, uses backend default if omitted).'
+    required: false
+
+  remoteUser:
+    description: 'Authentication username.'
+    required: false
+
+  remotePass:
+    description: 'Authentication password (plain-text; auto-obscured by the action). Treat as a secret.'
+    required: false
+
+  remotePath:
+    description: 'Base path on the remote where files will be published.'
+    required: false
+    default: '/'
+
+  rcloneConfig:
+    description: >
+      Raw rclone.conf content. When provided, overrides individual remote* inputs.
+      The first remote defined in the config will be used.
+    required: false
+
+  rcloneFlags:
+    description: 'Extra flags appended to every rclone command (e.g. "--transfers 8 --checkers 16").'
+    required: false
+
+  installRclone:
+    description: 'Install rclone if not found on PATH.'
+    required: false
+    default: 'true'
+
+  rcloneVersion:
+    description: 'rclone version to install (e.g. "v1.68.2"). Use "latest" for the newest stable release.'
+    required: false
+    default: 'latest'
+
+  dryRun:
+    description: 'Run rclone with --dry-run (no files are actually transferred).'
+    required: false
+    default: 'false'
+
+  verbose:
+    description: 'Enable verbose logging.'
+    required: false
+    default: 'false'
+
+outputs:
+  success:
+    description: '"true" if all transfers succeeded, "false" otherwise.'
+
+  transferredFiles:
+    description: 'Total number of files transferred.'
+
+  rcloneVersion:
+    description: 'Installed rclone version string.'
+
+runs:
+  using: node20
+  main: dist/index.js
+
+branding:
+  icon: upload-cloud
+  color: blue
