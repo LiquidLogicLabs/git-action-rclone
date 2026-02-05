@@ -179,10 +179,8 @@ jobs:
           echo "✓ Test 7 passed: dry run did not transfer files"
 
       # ── Test 8: rclone already installed (skip install) ──────────
-      - name: "Install rclone manually for Test 8"
-        shell: bash
-        run: curl -fsSL https://rclone.org/install.sh | sudo bash
-
+      # rclone is already installed from earlier test steps, so this
+      # validates that the action detects it and skips installation.
       - name: "Test 8: Use pre-installed rclone"
         uses: ./
         with:
