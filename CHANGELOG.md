@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/LiquidLogicLabs/git-action-rclone/compare/v1.0.0...v1.0.1) (2026-02-05)
+
+
+### Features
+
+* add certificate skip, include/exclude filters, and delete-excluded ([e25d5ba](https://github.com/LiquidLogicLabs/git-action-rclone/commit/e25d5ba6f6aceb4f34b5d4c0c032aa339dceade6))
+
 ## 1.0.0 (2026-02-05)
 
 
