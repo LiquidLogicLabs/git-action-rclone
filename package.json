@@ -1,6 +1,6 @@
 {
   "name": "git-action-rclone",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "GitHub Action to install and run rclone for publishing files/folders to remote storage",
   "main": "dist/index.js",
   "scripts": {
