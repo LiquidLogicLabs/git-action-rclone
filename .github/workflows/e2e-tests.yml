@@ -113,14 +113,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p /tmp/e2e-dest-5
-          echo "extra file" > /tmp/e2e-dest-5/extra.txt
-          echo "will be kept" > /tmp/e2e-dest-5/single.txt
+          # Create a source directory with only one file
+          mkdir -p /tmp/e2e-src-5
+          echo "kept file" > /tmp/e2e-src-5/kept.txt
+          # Pre-populate dest with an extra file that should be deleted by sync
+          mkdir -p /tmp/e2e-dest-5/e2e-src-5
+          echo "extra file" > /tmp/e2e-dest-5/e2e-src-5/extra.txt
+          echo "old kept" > /tmp/e2e-dest-5/e2e-src-5/kept.txt
 
       - name: "Test 5: Sync mode deletes extra files"
         uses: ./
         with:
-          sources: /tmp/e2e-src/single.txt
+          sources: /tmp/e2e-src-5
           mode: sync
           remoteType: local
           remotePath: /tmp/e2e-dest-5
@@ -129,8 +133,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -f /tmp/e2e-dest-5/single.txt
-          test ! -f /tmp/e2e-dest-5/extra.txt
+          test -f /tmp/e2e-dest-5/e2e-src-5/kept.txt
+          test ! -f /tmp/e2e-dest-5/e2e-src-5/extra.txt
           echo "✓ Test 5 passed: sync deleted extra file"
 
       # ── Test 6: Copy preserves extra remote files ────────────────
