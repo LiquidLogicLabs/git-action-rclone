@@ -309,4 +309,107 @@ describe('getInputs', () => {
     const inputs = getInputs();
     expect(inputs.remotePath).toBe('/');
   });
+
+  it('extracts path from URL in remoteHost', () => {
+    mockInput({
+      sources: 'file.txt',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'webdav',
+      remoteHost: 'https://cloud.example.com/remote.php/dav/files/user',
+      remotePath: '',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'false',
+    });
+
+    const inputs = getInputs();
+    expect(inputs.remoteHost).toBe('https://cloud.example.com');
+    expect(inputs.remotePath).toBe('/remote.php/dav/files/user');
+  });
+
+  it('leaves remotePath unchanged when URL has no path', () => {
+    mockInput({
+      sources: 'file.txt',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'webdav',
+      remoteHost: 'https://cloud.example.com',
+      remotePath: '/uploads',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'false',
+    });
+
+    const inputs = getInputs();
+    expect(inputs.remoteHost).toBe('https://cloud.example.com');
+    expect(inputs.remotePath).toBe('/uploads');
+  });
+
+  it('throws when URL has path and remotePath is also set', () => {
+    mockInput({
+      sources: 'file.txt',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'webdav',
+      remoteHost: 'https://cloud.example.com/dav',
+      remotePath: '/uploads',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'false',
+    });
+
+    expect(() => getInputs()).toThrow("Cannot set both a URL path in 'remoteHost' and 'remotePath'");
+  });
+
+  it('does not parse non-URL remoteHost', () => {
+    mockInput({
+      sources: 'file.txt',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'sftp',
+      remoteHost: 'files.example.com',
+      remotePath: '/var/www',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'false',
+    });
+
+    const inputs = getInputs();
+    expect(inputs.remoteHost).toBe('files.example.com');
+    expect(inputs.remotePath).toBe('/var/www');
+  });
+
+  it('preserves port in URL origin', () => {
+    mockInput({
+      sources: 'file.txt',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'webdav',
+      remoteHost: 'https://cloud.example.com:8443/dav',
+      remotePath: '',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'false',
+    });
+
+    const inputs = getInputs();
+    expect(inputs.remoteHost).toBe('https://cloud.example.com:8443');
+    expect(inputs.remotePath).toBe('/dav');
+  });
 });

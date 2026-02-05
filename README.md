@@ -39,7 +39,7 @@ Supports **GitHub Actions**, **Gitea Actions**, and **nektos/act** local runner.
 | `recursive` | no | `true` | Recursively copy folder contents |
 | `mode` | no | `sync` | Transfer mode: `sync` (mirror, deletes extra remote files) or `copy` (additive only) |
 | `remoteType` | no* | — | rclone backend type (`sftp`, `s3`, `webdav`, `ftp`, `local`, etc.) |
-| `remoteHost` | no* | — | Remote server address |
+| `remoteHost` | no* | — | Remote server address (http/https URLs auto-extract path to remotePath) |
 | `remotePort` | no | — | Remote server port |
 | `remoteUser` | no | — | Auth username |
 | `remotePass` | no | — | Auth password (plain-text; auto-obscured by the action) |

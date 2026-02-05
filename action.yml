@@ -26,7 +26,10 @@ inputs:
     required: false
 
   remoteHost:
-    description: 'Remote server address/hostname. Required unless rcloneConfig is provided or remoteType is "local".'
+    description: >
+      Remote server address/hostname. Required unless rcloneConfig is provided or remoteType is "local".
+      For http/https URLs, any path component is auto-extracted and used as remotePath
+      (e.g. "https://cloud.example.com/dav/uploads" sets host to "https://cloud.example.com" and path to "/dav/uploads").
     required: false
 
   remotePort:

@@ -28344,12 +28344,32 @@ function getInputs() {
     }
     const rcloneConfig = core.getInput('rcloneConfig');
     const remoteType = core.getInput('remoteType');
-    const remoteHost = core.getInput('remoteHost');
+    let remoteHost = core.getInput('remoteHost');
     if (!rcloneConfig && !remoteType) {
         throw new Error("Either 'rcloneConfig' or 'remoteType' (with 'remoteHost') must be provided.");
     }
     if (remoteType && remoteType !== 'local' && !remoteHost && !rcloneConfig) {
         throw new Error(`Input 'remoteHost' is required when 'remoteType' is '${remoteType}' (non-local backend).`);
+    }
+    // Parse URL path from remoteHost (http/https URLs only)
+    const rawRemotePath = core.getInput('remotePath');
+    let remotePath = rawRemotePath || '/';
+    if (remoteHost && (remoteHost.startsWith('http://') || remoteHost.startsWith('https://'))) {
+        try {
+            const url = new URL(remoteHost);
+            if (url.pathname && url.pathname !== '/') {
+                if (rawRemotePath && rawRemotePath !== '/') {
+                    throw new Error("Cannot set both a URL path in 'remoteHost' and 'remotePath'. Use one or the other.");
+                }
+                remotePath = url.pathname;
+            }
+            remoteHost = url.origin;
+        }
+        catch (e) {
+            if (e instanceof Error && e.message.includes('Cannot set both'))
+                throw e;
+            // Not a valid URL, treat as plain hostname
+        }
     }
     const exclude = parseList(core.getInput('exclude'));
     const deleteExcluded = core.getBooleanInput('deleteExcluded');
@@ -28365,7 +28385,7 @@ function getInputs() {
         remotePort: core.getInput('remotePort'),
         remoteUser: core.getInput('remoteUser'),
         remotePass,
-        remotePath: core.getInput('remotePath') || '/',
+        remotePath,
         rcloneConfig,
         rcloneFlags: core.getInput('rcloneFlags'),
         skipCertCheck: core.getBooleanInput('skipCertCheck'),
