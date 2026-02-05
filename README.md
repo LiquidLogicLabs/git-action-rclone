@@ -13,6 +13,9 @@ Supports **GitHub Actions**, **Gitea Actions**, and **nektos/act** local runner.
 - **Copy mode**: additive only, never deletes remote files
 - Works with any rclone backend (SFTP, S3, WebDAV, FTP, local, and [many more](https://rclone.org/overview/))
 - Auto-obscures passwords for secure configuration
+- Include/exclude file filters with rclone pattern syntax
+- Delete-excluded option to remove excluded files from remote
+- Skip TLS certificate checks for self-signed certificates
 - Dry-run support for safe testing
 
 ## Quick Start
@@ -43,6 +46,10 @@ Supports **GitHub Actions**, **Gitea Actions**, and **nektos/act** local runner.
 | `remotePath` | no | `/` | Base path on the remote |
 | `rcloneConfig` | no | — | Raw rclone.conf content (overrides individual remote inputs) |
 | `rcloneFlags` | no | — | Extra flags passed to every rclone command |
+| `skipCertCheck` | no | `false` | Skip TLS certificate verification (for self-signed certs) |
+| `include` | no | — | Comma/newline-separated include filter patterns (only matching files transferred) |
+| `exclude` | no | — | Comma/newline-separated exclude filter patterns (matching files skipped) |
+| `deleteExcluded` | no | `false` | Delete files on remote that match exclude patterns |
 | `installRclone` | no | `true` | Install rclone if not found on PATH |
 | `rcloneVersion` | no | `latest` | rclone version to install |
 | `dryRun` | no | `false` | Run with `--dry-run` (no files transferred) |
@@ -130,6 +137,36 @@ No elevated permissions required.
       user = deploy
       pass = ${{ secrets.RCLONE_OBSCURED_PASS }}
       shell_type = unix
+```
+
+### Sync with exclude filter
+
+```yaml
+- uses: LiquidLogicLabs/git-action-rclone@v1
+  with:
+    sources: build/
+    mode: sync
+    remoteType: sftp
+    remoteHost: files.example.com
+    remoteUser: deploy
+    remotePass: ${{ secrets.SFTP_PASSWORD }}
+    remotePath: /var/www/html
+    exclude: '*.tmp, .git/**, node_modules/**'
+    deleteExcluded: 'true'
+```
+
+### Self-signed certificate
+
+```yaml
+- uses: LiquidLogicLabs/git-action-rclone@v1
+  with:
+    sources: dist/
+    remoteType: webdav
+    remoteHost: https://internal-server.local/dav/
+    remoteUser: admin
+    remotePass: ${{ secrets.WEBDAV_PASSWORD }}
+    remotePath: /uploads
+    skipCertCheck: 'true'
 ```
 
 ### Dry run for testing

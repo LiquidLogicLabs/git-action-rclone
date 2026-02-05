@@ -28322,7 +28322,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getInputs = getInputs;
 const core = __importStar(__nccwpck_require__(7484));
 const VALID_MODES = ['sync', 'copy'];
-function parseSources(raw) {
+function parseList(raw) {
     return raw
         .split(/[,\n]/)
         .map((s) => s.trim())
@@ -28330,7 +28330,7 @@ function parseSources(raw) {
 }
 function getInputs() {
     const sourcesRaw = core.getInput('sources', { required: true });
-    const sources = parseSources(sourcesRaw);
+    const sources = parseList(sourcesRaw);
     if (sources.length === 0) {
         throw new Error("Input 'sources' must contain at least one file or folder path.");
     }
@@ -28351,6 +28351,11 @@ function getInputs() {
     if (remoteType && remoteType !== 'local' && !remoteHost && !rcloneConfig) {
         throw new Error(`Input 'remoteHost' is required when 'remoteType' is '${remoteType}' (non-local backend).`);
     }
+    const exclude = parseList(core.getInput('exclude'));
+    const deleteExcluded = core.getBooleanInput('deleteExcluded');
+    if (deleteExcluded && exclude.length === 0) {
+        core.warning("'deleteExcluded' is enabled but no 'exclude' patterns are set. It will have no effect.");
+    }
     return {
         sources,
         recursive: core.getBooleanInput('recursive'),
@@ -28363,6 +28368,10 @@ function getInputs() {
         remotePath: core.getInput('remotePath') || '/',
         rcloneConfig,
         rcloneFlags: core.getInput('rcloneFlags'),
+        skipCertCheck: core.getBooleanInput('skipCertCheck'),
+        include: parseList(core.getInput('include')),
+        exclude,
+        deleteExcluded,
         installRclone: core.getBooleanInput('installRclone'),
         rcloneVersion: core.getInput('rcloneVersion') || 'latest',
         dryRun: core.getBooleanInput('dryRun'),
@@ -28772,6 +28781,21 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
     args.push(dest);
     if (isDirectory && !inputs.recursive) {
         args.push('--max-depth', '1');
+    }
+    // Include/exclude filters only apply to directory sources
+    if (isDirectory) {
+        for (const pattern of inputs.include) {
+            args.push('--include', pattern);
+        }
+        for (const pattern of inputs.exclude) {
+            args.push('--exclude', pattern);
+        }
+        if (inputs.deleteExcluded) {
+            args.push('--delete-excluded');
+        }
+    }
+    if (inputs.skipCertCheck) {
+        args.push('--no-check-certificate');
     }
     if (inputs.dryRun) {
         args.push('--dry-run');

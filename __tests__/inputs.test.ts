@@ -192,6 +192,107 @@ describe('getInputs', () => {
     expect(inputs.remoteType).toBe('');
   });
 
+  it('parses comma-separated include patterns', () => {
+    mockInput({
+      sources: 'dist/',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'local',
+      remotePath: '/tmp/dest',
+      include: '*.txt, *.log',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'false',
+    });
+
+    const inputs = getInputs();
+    expect(inputs.include).toEqual(['*.txt', '*.log']);
+  });
+
+  it('parses newline-separated exclude patterns', () => {
+    mockInput({
+      sources: 'dist/',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'local',
+      remotePath: '/tmp/dest',
+      exclude: '*.tmp\n.git/**',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'false',
+    });
+
+    const inputs = getInputs();
+    expect(inputs.exclude).toEqual(['*.tmp', '.git/**']);
+  });
+
+  it('returns empty arrays for unset include/exclude', () => {
+    mockInput({
+      sources: 'file.txt',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'local',
+      remotePath: '/tmp/dest',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'false',
+    });
+
+    const inputs = getInputs();
+    expect(inputs.include).toEqual([]);
+    expect(inputs.exclude).toEqual([]);
+  });
+
+  it('defaults skipCertCheck and deleteExcluded to false', () => {
+    mockInput({
+      sources: 'file.txt',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'local',
+      remotePath: '/tmp/dest',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'false',
+    });
+
+    const inputs = getInputs();
+    expect(inputs.skipCertCheck).toBe(false);
+    expect(inputs.deleteExcluded).toBe(false);
+  });
+
+  it('warns when deleteExcluded is true but no exclude patterns set', () => {
+    mockInput({
+      sources: 'file.txt',
+      recursive: 'true',
+      mode: 'sync',
+      remoteType: 'local',
+      remotePath: '/tmp/dest',
+      installRclone: 'true',
+      rcloneVersion: 'latest',
+      dryRun: 'false',
+      verbose: 'false',
+      skipCertCheck: 'false',
+      deleteExcluded: 'true',
+    });
+
+    getInputs();
+    expect(mockedCore.warning).toHaveBeenCalledWith(
+      expect.stringContaining('deleteExcluded')
+    );
+  });
+
   it('defaults remotePath to / when empty', () => {
     mockInput({
       sources: 'file.txt',

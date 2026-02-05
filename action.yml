@@ -56,6 +56,30 @@ inputs:
     description: 'Extra flags appended to every rclone command (e.g. "--transfers 8 --checkers 16").'
     required: false
 
+  skipCertCheck:
+    description: 'Skip TLS certificate verification (for self-signed certificates).'
+    required: false
+    default: 'false'
+
+  include:
+    description: >
+      Comma or newline-separated list of include filter patterns (e.g. "*.txt, *.log").
+      When set, only files matching these patterns are transferred. Follows rclone filter syntax.
+      Only applies to directory sources.
+    required: false
+
+  exclude:
+    description: >
+      Comma or newline-separated list of exclude filter patterns (e.g. "*.tmp, .git/**").
+      Matching files are skipped during transfer. Follows rclone filter syntax.
+      Only applies to directory sources.
+    required: false
+
+  deleteExcluded:
+    description: 'Delete files on the remote that match exclude filter patterns. Requires exclude to be set.'
+    required: false
+    default: 'false'
+
   installRclone:
     description: 'Install rclone if not found on PATH.'
     required: false

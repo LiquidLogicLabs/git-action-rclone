@@ -197,6 +197,66 @@ jobs:
           test -f /tmp/e2e-dest-8/single.txt
           echo "✓ Test 8 passed: used pre-installed rclone"
 
+      # ── Test 9: Exclude filter ────────────────────────────────────
+      - name: "Setup Test 9"
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/e2e-src-9
+          echo "keep me" > /tmp/e2e-src-9/data.txt
+          echo "keep me too" > /tmp/e2e-src-9/notes.log
+          echo "skip me" > /tmp/e2e-src-9/cache.tmp
+          echo "skip me too" > /tmp/e2e-src-9/build.tmp
+
+      - name: "Test 9: Exclude filter skips matching files"
+        uses: ./
+        with:
+          sources: /tmp/e2e-src-9
+          mode: copy
+          remoteType: local
+          remotePath: /tmp/e2e-dest-9
+          exclude: '*.tmp'
+
+      - name: "Verify Test 9"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/e2e-dest-9/e2e-src-9/data.txt
+          test -f /tmp/e2e-dest-9/e2e-src-9/notes.log
+          test ! -f /tmp/e2e-dest-9/e2e-src-9/cache.tmp
+          test ! -f /tmp/e2e-dest-9/e2e-src-9/build.tmp
+          echo "✓ Test 9 passed: exclude filter skipped .tmp files"
+
+      # ── Test 10: Delete-excluded ────────────────────────────────
+      - name: "Setup Test 10"
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/e2e-src-10
+          echo "keep" > /tmp/e2e-src-10/data.txt
+          # Pre-populate dest with a .tmp file that should be deleted
+          mkdir -p /tmp/e2e-dest-10/e2e-src-10
+          echo "stale" > /tmp/e2e-dest-10/e2e-src-10/old-cache.tmp
+          echo "old data" > /tmp/e2e-dest-10/e2e-src-10/data.txt
+
+      - name: "Test 10: Delete-excluded removes excluded files from remote"
+        uses: ./
+        with:
+          sources: /tmp/e2e-src-10
+          mode: sync
+          remoteType: local
+          remotePath: /tmp/e2e-dest-10
+          exclude: '*.tmp'
+          deleteExcluded: 'true'
+
+      - name: "Verify Test 10"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/e2e-dest-10/e2e-src-10/data.txt
+          test ! -f /tmp/e2e-dest-10/e2e-src-10/old-cache.tmp
+          echo "✓ Test 10 passed: delete-excluded removed .tmp from remote"
+
       # ── Summary ──────────────────────────────────────────────────
       - name: Summary
         shell: bash

@@ -176,6 +176,23 @@ async function transferSource(
     args.push('--max-depth', '1');
   }
 
+  // Include/exclude filters only apply to directory sources
+  if (isDirectory) {
+    for (const pattern of inputs.include) {
+      args.push('--include', pattern);
+    }
+    for (const pattern of inputs.exclude) {
+      args.push('--exclude', pattern);
+    }
+    if (inputs.deleteExcluded) {
+      args.push('--delete-excluded');
+    }
+  }
+
+  if (inputs.skipCertCheck) {
+    args.push('--no-check-certificate');
+  }
+
   if (inputs.dryRun) {
     args.push('--dry-run');
   }

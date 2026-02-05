@@ -3,7 +3,7 @@ import { ActionInputs, TransferMode } from './types';
 
 const VALID_MODES: TransferMode[] = ['sync', 'copy'];
 
-function parseSources(raw: string): string[] {
+function parseList(raw: string): string[] {
   return raw
     .split(/[,\n]/)
     .map((s) => s.trim())
@@ -12,7 +12,7 @@ function parseSources(raw: string): string[] {
 
 export function getInputs(): ActionInputs {
   const sourcesRaw = core.getInput('sources', { required: true });
-  const sources = parseSources(sourcesRaw);
+  const sources = parseList(sourcesRaw);
 
   if (sources.length === 0) {
     throw new Error("Input 'sources' must contain at least one file or folder path.");
@@ -44,6 +44,13 @@ export function getInputs(): ActionInputs {
     );
   }
 
+  const exclude = parseList(core.getInput('exclude'));
+  const deleteExcluded = core.getBooleanInput('deleteExcluded');
+
+  if (deleteExcluded && exclude.length === 0) {
+    core.warning("'deleteExcluded' is enabled but no 'exclude' patterns are set. It will have no effect.");
+  }
+
   return {
     sources,
     recursive: core.getBooleanInput('recursive'),
@@ -56,6 +63,10 @@ export function getInputs(): ActionInputs {
     remotePath: core.getInput('remotePath') || '/',
     rcloneConfig,
     rcloneFlags: core.getInput('rcloneFlags'),
+    skipCertCheck: core.getBooleanInput('skipCertCheck'),
+    include: parseList(core.getInput('include')),
+    exclude,
+    deleteExcluded,
     installRclone: core.getBooleanInput('installRclone'),
     rcloneVersion: core.getInput('rcloneVersion') || 'latest',
     dryRun: core.getBooleanInput('dryRun'),
