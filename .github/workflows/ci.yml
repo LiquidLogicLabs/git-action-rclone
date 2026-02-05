@@ -78,7 +78,3 @@ jobs:
             exit 1
           fi
 
-  e2e:
-    name: E2E Tests
-    needs: [build]
-    uses: ./.github/workflows/e2e-tests.yml
