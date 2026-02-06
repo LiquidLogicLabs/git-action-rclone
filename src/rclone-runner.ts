@@ -18,13 +18,21 @@ async function obscurePassword(password: string): Promise<string> {
   return output.trim();
 }
 
+// Backends that use 'url' instead of 'host' for server address
+const URL_BASED_BACKENDS = ['webdav', 'http', 'swift'];
+
 function buildEnvConfig(inputs: ActionInputs, obscuredPass: string): Record<string, string> {
   const env: Record<string, string> = {};
 
   env['RCLONE_CONFIG_REMOTE_TYPE'] = inputs.remoteType;
 
   if (inputs.remoteHost) {
-    env['RCLONE_CONFIG_REMOTE_HOST'] = inputs.remoteHost;
+    // Different backends use different config parameter names for the server address
+    if (URL_BASED_BACKENDS.includes(inputs.remoteType)) {
+      env['RCLONE_CONFIG_REMOTE_URL'] = inputs.remoteHost;
+    } else {
+      env['RCLONE_CONFIG_REMOTE_HOST'] = inputs.remoteHost;
+    }
   }
   if (inputs.remotePort) {
     env['RCLONE_CONFIG_REMOTE_PORT'] = inputs.remotePort;

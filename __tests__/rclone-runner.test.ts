@@ -316,4 +316,25 @@ describe('runTransfers', () => {
       RCLONE_CONFIG_REMOTE_USER: 'admin',
     });
   });
+
+  it('uses RCLONE_CONFIG_REMOTE_URL for webdav backend instead of HOST', async () => {
+    mockedExec.exec.mockResolvedValue(0);
+
+    const inputs = createBaseInputs({
+      sources: [testFile],
+      remoteType: 'webdav',
+      remoteHost: 'https://cloud.example.com',
+      remoteUser: 'admin',
+    });
+    await runTransfers(inputs, createLogger());
+
+    const execOptions = mockedExec.exec.mock.calls[0][2];
+    expect(execOptions?.env).toMatchObject({
+      RCLONE_CONFIG_REMOTE_TYPE: 'webdav',
+      RCLONE_CONFIG_REMOTE_URL: 'https://cloud.example.com',
+      RCLONE_CONFIG_REMOTE_USER: 'admin',
+    });
+    // Should NOT have HOST set for webdav
+    expect(execOptions?.env).not.toHaveProperty('RCLONE_CONFIG_REMOTE_HOST');
+  });
 });
