@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.3](https://github.com/LiquidLogicLabs/git-action-rclone/compare/v1.0.2...v1.0.3) (2026-02-06)
+
+
+### Bug Fixes
+
+* use URL env var for webdav/http backends instead of HOST ([0a23170](https://github.com/LiquidLogicLabs/git-action-rclone/commit/0a231700cca22f9f2b7bd22b8e0cc73209038db3))
+
 ### [1.0.2](https://github.com/LiquidLogicLabs/git-action-rclone/compare/v1.0.1...v1.0.2) (2026-02-05)
 
 
