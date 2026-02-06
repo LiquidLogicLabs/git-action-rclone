@@ -210,6 +210,7 @@ async function transferSource(
 
   if (inputs.verbose) {
     args.push('-v');
+    args.push('--dump', 'filters');
   }
 
   args.push('--stats-one-line-date');

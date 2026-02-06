@@ -28833,6 +28833,7 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
     }
     if (inputs.verbose) {
         args.push('-v');
+        args.push('--dump', 'filters');
     }
     args.push('--stats-one-line-date');
     args.push('--stats-log-level', 'NOTICE');

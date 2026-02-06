@@ -53,7 +53,7 @@ Supports **GitHub Actions**, **Gitea Actions**, and **nektos/act** local runner.
 | `installRclone` | no | `true` | Install rclone if not found on PATH |
 | `rcloneVersion` | no | `latest` | rclone version to install |
 | `dryRun` | no | `false` | Run with `--dry-run` (no files transferred) |
-| `verbose` | no | `false` | Enable verbose logging |
+| `verbose` | no | `false` | Enable verbose logging (also dumps filter rules) |
 
 \* Either `remoteType` + `remoteHost` **or** `rcloneConfig` is required.
 
@@ -182,6 +182,27 @@ No elevated permissions required.
     remotePath: /var/www/mysite
     dryRun: 'true'
     verbose: 'true'
+```
+
+## Filter Patterns
+
+The `include` and `exclude` inputs use [rclone's filter pattern syntax](https://rclone.org/filtering/). Key patterns:
+
+| Pattern | Matches |
+|---------|---------|
+| `*.json` | `.json` files in the root directory only |
+| `**.json` | `.json` files at any level (root and subdirectories) |
+| `**/*.json` | `.json` files in subdirectories only (NOT root level) |
+| `dir/**` | Everything inside `dir/` |
+| `*` | All files in root directory |
+| `**` | All files at any level |
+
+**Common gotcha:** Use `**.json` (not `**/*.json`) to match files at all levels including root.
+
+Example — sync only JSON files:
+```yaml
+include: '**.json'
+exclude: '*'
 ```
 
 ## Security
