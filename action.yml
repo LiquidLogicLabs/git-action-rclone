@@ -6,6 +6,8 @@ inputs:
     description: >
       Comma or newline-separated list of files and/or folders to publish.
       Example: 'dist/,README.md' or one path per line.
+      For folders: without trailing slash ('build'), the folder name is appended to remotePath;
+      with trailing slash ('build/'), contents are synced directly to remotePath.
     required: true
 
   recursive:

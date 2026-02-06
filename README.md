@@ -35,7 +35,7 @@ Supports **GitHub Actions**, **Gitea Actions**, and **nektos/act** local runner.
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `sources` | **yes** | — | Comma or newline-separated list of files/folders to publish |
+| `sources` | **yes** | — | Comma or newline-separated list of files/folders to publish. For folders, a trailing slash (`dir/`) syncs contents directly; without it (`dir`), the folder name is appended to remotePath |
 | `recursive` | no | `true` | Recursively copy folder contents |
 | `mode` | no | `sync` | Transfer mode: `sync` (mirror, deletes extra remote files) or `copy` (additive only) |
 | `remoteType` | no* | — | rclone backend type (`sftp`, `s3`, `webdav`, `ftp`, `local`, etc.) |

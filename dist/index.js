@@ -28778,6 +28778,8 @@ async function runTransfers(inputs, logger) {
     return results;
 }
 async function transferSource(source, remoteName, inputs, extraEnv, configPath, logger) {
+    // Check for trailing slash BEFORE resolving (indicates "sync contents only")
+    const syncContentsOnly = source.endsWith('/') || source.endsWith(path.sep);
     const resolvedSource = path.resolve(source);
     if (!fs.existsSync(resolvedSource)) {
         return {
@@ -28791,8 +28793,8 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
     const isDirectory = stat.isDirectory();
     // Build the destination path
     let destPath = inputs.remotePath;
-    if (isDirectory) {
-        // For directories, use the directory name as subfolder on remote
+    if (isDirectory && !syncContentsOnly) {
+        // For directories without trailing slash, use the directory name as subfolder on remote
         destPath = path.posix.join(inputs.remotePath, path.basename(resolvedSource));
     }
     const dest = `${remoteName}:${destPath}`;

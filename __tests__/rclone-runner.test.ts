@@ -93,6 +93,30 @@ describe('runTransfers', () => {
     expect(args[1]).toBe(testDir);
   });
 
+  it('appends directory basename to remote path for directory without trailing slash', async () => {
+    mockedExec.exec.mockResolvedValue(0);
+
+    const inputs = createBaseInputs({ sources: [testDir] });
+    await runTransfers(inputs, createLogger());
+
+    const args = mockedExec.exec.mock.calls[0][1] as string[];
+    // Should include directory basename in destination
+    expect(args).toContain(`remote:/tmp/rclone-test-dest/test-dir`);
+  });
+
+  it('syncs contents directly when source has trailing slash', async () => {
+    mockedExec.exec.mockResolvedValue(0);
+
+    // Add trailing slash to source
+    const inputs = createBaseInputs({ sources: [`${testDir}/`] });
+    await runTransfers(inputs, createLogger());
+
+    const args = mockedExec.exec.mock.calls[0][1] as string[];
+    // Should NOT include directory basename - sync directly to remote path
+    expect(args).toContain('remote:/tmp/rclone-test-dest');
+    expect(args).not.toContain('remote:/tmp/rclone-test-dest/test-subdir');
+  });
+
   it('adds --max-depth 1 when recursive is false for a directory', async () => {
     mockedExec.exec.mockResolvedValue(0);
 

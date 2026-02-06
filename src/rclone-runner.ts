@@ -144,6 +144,8 @@ async function transferSource(
   configPath: string | null,
   logger: Logger
 ): Promise<TransferResult> {
+  // Check for trailing slash BEFORE resolving (indicates "sync contents only")
+  const syncContentsOnly = source.endsWith('/') || source.endsWith(path.sep);
   const resolvedSource = path.resolve(source);
 
   if (!fs.existsSync(resolvedSource)) {
@@ -160,8 +162,8 @@ async function transferSource(
 
   // Build the destination path
   let destPath = inputs.remotePath;
-  if (isDirectory) {
-    // For directories, use the directory name as subfolder on remote
+  if (isDirectory && !syncContentsOnly) {
+    // For directories without trailing slash, use the directory name as subfolder on remote
     destPath = path.posix.join(inputs.remotePath, path.basename(resolvedSource));
   }
 
