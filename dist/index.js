@@ -28813,12 +28813,13 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
         args.push('--max-depth', '1');
     }
     // Include/exclude filters only apply to directory sources
+    // Use --filter for deterministic ordering (rclone warns about indeterminate order with mixed --include/--exclude)
     if (isDirectory) {
         for (const pattern of inputs.include) {
-            args.push('--include', pattern);
+            args.push('--filter', `+ ${pattern}`);
         }
         for (const pattern of inputs.exclude) {
-            args.push('--exclude', pattern);
+            args.push('--filter', `- ${pattern}`);
         }
         if (inputs.deleteExcluded) {
             args.push('--delete-excluded');

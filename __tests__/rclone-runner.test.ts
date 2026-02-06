@@ -231,7 +231,7 @@ describe('runTransfers', () => {
     expect(args).toContain('--no-check-certificate');
   });
 
-  it('adds --include flags for directory sources', async () => {
+  it('adds --filter include rules for directory sources', async () => {
     mockedExec.exec.mockResolvedValue(0);
 
     const inputs = createBaseInputs({
@@ -241,16 +241,13 @@ describe('runTransfers', () => {
     await runTransfers(inputs, createLogger());
 
     const args = mockedExec.exec.mock.calls[0][1] as string[];
-    const includeIndices = args.reduce<number[]>((acc, val, idx) => {
-      if (val === '--include') acc.push(idx);
-      return acc;
-    }, []);
-    expect(includeIndices).toHaveLength(2);
-    expect(args[includeIndices[0] + 1]).toBe('*.txt');
-    expect(args[includeIndices[1] + 1]).toBe('*.log');
+    // Should use --filter with + prefix for includes
+    expect(args).toContain('--filter');
+    expect(args).toContain('+ *.txt');
+    expect(args).toContain('+ *.log');
   });
 
-  it('adds --exclude flags for directory sources', async () => {
+  it('adds --filter exclude rules for directory sources', async () => {
     mockedExec.exec.mockResolvedValue(0);
 
     const inputs = createBaseInputs({
@@ -260,13 +257,10 @@ describe('runTransfers', () => {
     await runTransfers(inputs, createLogger());
 
     const args = mockedExec.exec.mock.calls[0][1] as string[];
-    const excludeIndices = args.reduce<number[]>((acc, val, idx) => {
-      if (val === '--exclude') acc.push(idx);
-      return acc;
-    }, []);
-    expect(excludeIndices).toHaveLength(2);
-    expect(args[excludeIndices[0] + 1]).toBe('*.tmp');
-    expect(args[excludeIndices[1] + 1]).toBe('.git/**');
+    // Should use --filter with - prefix for excludes
+    expect(args).toContain('--filter');
+    expect(args).toContain('- *.tmp');
+    expect(args).toContain('- .git/**');
   });
 
   it('adds --delete-excluded when deleteExcluded is true', async () => {
@@ -298,13 +292,13 @@ describe('runTransfers', () => {
     // Should have the file-level --include for the filename, but not the filter patterns
     expect(args).toContain('--include');
     expect(args).toContain('test-file.txt');
-    expect(args).not.toContain('*.log');
-    expect(args).not.toContain('*.tmp');
-    expect(args).not.toContain('--exclude');
+    // Should not have filter rules for single-file sources
+    expect(args).not.toContain('+ *.log');
+    expect(args).not.toContain('- *.tmp');
     expect(args).not.toContain('--delete-excluded');
   });
 
-  it('applies include before exclude in args order', async () => {
+  it('applies include filters before exclude filters in args order', async () => {
     mockedExec.exec.mockResolvedValue(0);
 
     const inputs = createBaseInputs({
@@ -315,9 +309,11 @@ describe('runTransfers', () => {
     await runTransfers(inputs, createLogger());
 
     const args = mockedExec.exec.mock.calls[0][1] as string[];
-    const includeIdx = args.indexOf('--include');
-    const excludeIdx = args.indexOf('--exclude');
-    expect(includeIdx).toBeLessThan(excludeIdx);
+    const includeFilterIdx = args.indexOf('+ *.txt');
+    const excludeFilterIdx = args.indexOf('- *.tmp');
+    expect(includeFilterIdx).toBeGreaterThan(-1);
+    expect(excludeFilterIdx).toBeGreaterThan(-1);
+    expect(includeFilterIdx).toBeLessThan(excludeFilterIdx);
   });
 
   it('sets RCLONE_CONFIG_REMOTE_* env vars for env-based config', async () => {
