@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/LiquidLogicLabs/git-action-rclone/compare/v1.0.3...v1.1.0) (2026-02-06)
+
+
+### Features
+
+* trailing slash on source syncs contents directly ([c43cf4e](https://github.com/LiquidLogicLabs/git-action-rclone/commit/c43cf4e3a377853139ce02cbf7e8ebb71c7a1ea3))
+
 ### [1.0.3](https://github.com/LiquidLogicLabs/git-action-rclone/compare/v1.0.2...v1.0.3) (2026-02-06)
 
 
