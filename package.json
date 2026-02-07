@@ -4,6 +4,7 @@
   "description": "GitHub Action to install and run rclone for publishing files/folders to remote storage",
   "main": "dist/index.js",
   "scripts": {
+    "prepare": "husky install",
     "build": "tsc && ncc build src/index.ts -o dist --source-map",
     "package": "npm run build",
     "lint": "eslint src/**/*.ts --no-warn-ignored",
@@ -53,6 +54,7 @@
     "@types/node": "^20.17.14",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.18.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
