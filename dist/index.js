@@ -28196,91 +28196,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9407:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(7484));
-const inputs_1 = __nccwpck_require__(8422);
-const rclone_installer_1 = __nccwpck_require__(9905);
-const rclone_runner_1 = __nccwpck_require__(2947);
-const logger_1 = __nccwpck_require__(6999);
-async function run() {
-    try {
-        const inputs = (0, inputs_1.getInputs)();
-        const logger = new logger_1.Logger(inputs.verbose);
-        logger.debug('Parsed inputs successfully.');
-        // Step 1: Ensure rclone is available
-        const rcloneVersion = await logger.group('Ensure rclone', async () => {
-            return (0, rclone_installer_1.ensureRclone)(inputs.installRclone, inputs.rcloneVersion, logger);
-        });
-        core.setOutput('rcloneVersion', rcloneVersion);
-        // Step 2: Run transfers
-        const results = await logger.group('Transfer files', async () => {
-            return (0, rclone_runner_1.runTransfers)(inputs, logger);
-        });
-        // Step 3: Summarize results
-        const totalFiles = results.reduce((sum, r) => sum + r.filesTransferred, 0);
-        const allSucceeded = results.every((r) => r.success);
-        const failedSources = results.filter((r) => !r.success);
-        core.setOutput('transferredFiles', totalFiles.toString());
-        core.setOutput('success', allSucceeded ? 'true' : 'false');
-        if (failedSources.length > 0) {
-            const summary = failedSources
-                .map((r) => `  - ${r.source}: ${r.error}`)
-                .join('\n');
-            core.setFailed(`${failedSources.length} of ${results.length} transfer(s) failed:\n${summary}`);
-        }
-        else {
-            logger.info(`All ${results.length} transfer(s) completed successfully. ${totalFiles} file(s) transferred.`);
-        }
-    }
-    catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        core.setFailed(message);
-    }
-}
-run();
-
-
-/***/ }),
-
-/***/ 8422:
+/***/ 2973:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -28376,6 +28292,10 @@ function getInputs() {
     if (deleteExcluded && exclude.length === 0) {
         core.warning("'deleteExcluded' is enabled but no 'exclude' patterns are set. It will have no effect.");
     }
+    const verboseInput = core.getBooleanInput('verbose');
+    const envStepDebug = (process.env.ACTIONS_STEP_DEBUG || '').toLowerCase();
+    const stepDebugEnabled = core.isDebug() || envStepDebug === 'true' || envStepDebug === '1';
+    const verbose = verboseInput || stepDebugEnabled;
     return {
         sources,
         recursive: core.getBooleanInput('recursive'),
@@ -28388,16 +28308,100 @@ function getInputs() {
         remotePath,
         rcloneConfig,
         rcloneFlags: core.getInput('rcloneFlags'),
-        skipCertCheck: core.getBooleanInput('skipCertCheck'),
+        skipCertificateCheck: core.getBooleanInput('skipCertificateCheck'),
         include: parseList(core.getInput('include')),
         exclude,
         deleteExcluded,
         installRclone: core.getBooleanInput('installRclone'),
         rcloneVersion: core.getInput('rcloneVersion') || 'latest',
         dryRun: core.getBooleanInput('dryRun'),
-        verbose: core.getBooleanInput('verbose'),
+        verbose,
     };
 }
+
+
+/***/ }),
+
+/***/ 9407:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __importStar(__nccwpck_require__(7484));
+const config_1 = __nccwpck_require__(2973);
+const rclone_installer_1 = __nccwpck_require__(9905);
+const rclone_runner_1 = __nccwpck_require__(2947);
+const logger_1 = __nccwpck_require__(6999);
+async function run() {
+    try {
+        const inputs = (0, config_1.getInputs)();
+        const logger = new logger_1.Logger(inputs.verbose);
+        logger.debug('Parsed inputs successfully.');
+        // Step 1: Ensure rclone is available
+        const rcloneVersion = await logger.group('Ensure rclone', async () => {
+            return (0, rclone_installer_1.ensureRclone)(inputs.installRclone, inputs.rcloneVersion, logger);
+        });
+        core.setOutput('rcloneVersion', rcloneVersion);
+        // Step 2: Run transfers
+        const results = await logger.group('Transfer files', async () => {
+            return (0, rclone_runner_1.runTransfers)(inputs, logger);
+        });
+        // Step 3: Summarize results
+        const totalFiles = results.reduce((sum, r) => sum + r.filesTransferred, 0);
+        const allSucceeded = results.every((r) => r.success);
+        const failedSources = results.filter((r) => !r.success);
+        core.setOutput('transferredFiles', totalFiles.toString());
+        core.setOutput('success', allSucceeded ? 'true' : 'false');
+        if (failedSources.length > 0) {
+            const summary = failedSources
+                .map((r) => `  - ${r.source}: ${r.error}`)
+                .join('\n');
+            core.setFailed(`${failedSources.length} of ${results.length} transfer(s) failed:\n${summary}`);
+        }
+        else {
+            logger.info(`All ${results.length} transfer(s) completed successfully. ${totalFiles} file(s) transferred.`);
+        }
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        core.setFailed(message);
+    }
+}
+run();
 
 
 /***/ }),
@@ -28825,7 +28829,7 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
             args.push('--delete-excluded');
         }
     }
-    if (inputs.skipCertCheck) {
+    if (inputs.skipCertificateCheck) {
         args.push('--no-check-certificate');
     }
     if (inputs.dryRun) {
