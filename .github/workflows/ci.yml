@@ -9,6 +9,8 @@ on:
     branches: ['**']
     paths-ignore:
       - '**/*.md'
+  workflow_call:
+  workflow_dispatch:
 
 permissions:
   contents: read
