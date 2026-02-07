@@ -200,7 +200,7 @@ async function transferSource(
     }
   }
 
-  if (inputs.skipCertCheck) {
+    if (inputs.skipCertificateCheck) {
     args.push('--no-check-certificate');
   }
 

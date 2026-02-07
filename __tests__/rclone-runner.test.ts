@@ -28,7 +28,7 @@ function createBaseInputs(overrides: Partial<ActionInputs> = {}): ActionInputs {
     remotePath: '/tmp/rclone-test-dest',
     rcloneConfig: '',
     rcloneFlags: '',
-    skipCertCheck: false,
+    skipCertificateCheck: false,
     include: [],
     exclude: [],
     deleteExcluded: false,
@@ -221,10 +221,10 @@ describe('runTransfers', () => {
     expect(args.some((a: string) => a.startsWith('myremote:'))).toBe(true);
   });
 
-  it('adds --no-check-certificate when skipCertCheck is true', async () => {
+  it('adds --no-check-certificate when skipCertificateCheck is true', async () => {
     mockedExec.exec.mockResolvedValue(0);
 
-    const inputs = createBaseInputs({ sources: [testFile], skipCertCheck: true });
+    const inputs = createBaseInputs({ sources: [testFile], skipCertificateCheck: true });
     await runTransfers(inputs, createLogger());
 
     const args = mockedExec.exec.mock.calls[0][1] as string[];

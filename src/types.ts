@@ -12,7 +12,7 @@ export interface ActionInputs {
   remotePath: string;
   rcloneConfig: string;
   rcloneFlags: string;
-  skipCertCheck: boolean;
+  skipCertificateCheck: boolean;
   include: string[];
   exclude: string[];
   deleteExcluded: boolean;

@@ -61,7 +61,7 @@ inputs:
     description: 'Extra flags appended to every rclone command (e.g. "--transfers 8 --checkers 16").'
     required: false
 
-  skipCertCheck:
+  skipCertificateCheck:
     description: 'Skip TLS certificate verification (for self-signed certificates).'
     required: false
     default: 'false'
@@ -101,7 +101,7 @@ inputs:
     default: 'false'
 
   verbose:
-    description: 'Enable verbose logging.'
+    description: 'Enable verbose logging. Also enabled when ACTIONS_STEP_DEBUG=true.'
     required: false
     default: 'false'
 

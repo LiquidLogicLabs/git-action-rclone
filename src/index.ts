@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { getInputs } from './inputs';
+import { getInputs } from './config';
 import { ensureRclone } from './rclone-installer';
 import { runTransfers } from './rclone-runner';
 import { Logger } from './logger';

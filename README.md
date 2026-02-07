@@ -46,7 +46,7 @@ Supports **GitHub Actions**, **Gitea Actions**, and **nektos/act** local runner.
 | `remotePath` | no | `/` | Base path on the remote |
 | `rcloneConfig` | no | — | Raw rclone.conf content (overrides individual remote inputs) |
 | `rcloneFlags` | no | — | Extra flags passed to every rclone command |
-| `skipCertCheck` | no | `false` | Skip TLS certificate verification (for self-signed certs) |
+| `skipCertificateCheck` | no | `false` | Skip TLS certificate verification (for self-signed certs) |
 | `include` | no | — | Comma/newline-separated include filter patterns (only matching files transferred) |
 | `exclude` | no | — | Comma/newline-separated exclude filter patterns (matching files skipped) |
 | `deleteExcluded` | no | `false` | Delete files on remote that match exclude patterns |
@@ -166,7 +166,7 @@ No elevated permissions required.
     remoteUser: admin
     remotePass: ${{ secrets.WEBDAV_PASSWORD }}
     remotePath: /uploads
-    skipCertCheck: 'true'
+    skipCertificateCheck: 'true'
 ```
 
 ### Dry run for testing

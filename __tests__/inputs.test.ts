@@ -204,7 +204,7 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'false',
     });
 
@@ -224,7 +224,7 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'false',
     });
 
@@ -243,7 +243,7 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'false',
     });
 
@@ -252,7 +252,7 @@ describe('getInputs', () => {
     expect(inputs.exclude).toEqual([]);
   });
 
-  it('defaults skipCertCheck and deleteExcluded to false', () => {
+  it('defaults skipCertificateCheck and deleteExcluded to false', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
@@ -263,12 +263,12 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'false',
     });
 
     const inputs = getInputs();
-    expect(inputs.skipCertCheck).toBe(false);
+    expect(inputs.skipCertificateCheck).toBe(false);
     expect(inputs.deleteExcluded).toBe(false);
   });
 
@@ -283,7 +283,7 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'true',
     });
 
@@ -322,7 +322,7 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'false',
     });
 
@@ -343,7 +343,7 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'false',
     });
 
@@ -364,7 +364,7 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'false',
     });
 
@@ -383,7 +383,7 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'false',
     });
 
@@ -404,7 +404,7 @@ describe('getInputs', () => {
       rcloneVersion: 'latest',
       dryRun: 'false',
       verbose: 'false',
-      skipCertCheck: 'false',
+      skipCertificateCheck: 'false',
       deleteExcluded: 'false',
     });
 

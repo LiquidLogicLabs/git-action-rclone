@@ -1,0 +1,102 @@
+import * as core from '@actions/core';
+import { ActionInputs, TransferMode } from './types';
+
+const VALID_MODES: TransferMode[] = ['sync', 'copy'];
+
+function parseList(raw: string): string[] {
+  return raw
+    .split(/[,\n]/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+export function getInputs(): ActionInputs {
+  const sourcesRaw = core.getInput('sources', { required: true });
+  const sources = parseList(sourcesRaw);
+
+  if (sources.length === 0) {
+    throw new Error("Input 'sources' must contain at least one file or folder path.");
+  }
+
+  const mode = core.getInput('mode') as TransferMode;
+  if (!VALID_MODES.includes(mode)) {
+    throw new Error(`Input 'mode' must be one of: ${VALID_MODES.join(', ')}. Got: '${mode}'`);
+  }
+
+  const remotePass = core.getInput('remotePass');
+  if (remotePass) {
+    core.setSecret(remotePass);
+  }
+
+  const rcloneConfig = core.getInput('rcloneConfig');
+  const remoteType = core.getInput('remoteType');
+  let remoteHost = core.getInput('remoteHost');
+
+  if (!rcloneConfig && !remoteType) {
+    throw new Error(
+      "Either 'rcloneConfig' or 'remoteType' (with 'remoteHost') must be provided."
+    );
+  }
+
+  if (remoteType && remoteType !== 'local' && !remoteHost && !rcloneConfig) {
+    throw new Error(
+      `Input 'remoteHost' is required when 'remoteType' is '${remoteType}' (non-local backend).`
+    );
+  }
+
+  // Parse URL path from remoteHost (http/https URLs only)
+  const rawRemotePath = core.getInput('remotePath');
+  let remotePath = rawRemotePath || '/';
+
+  if (remoteHost && (remoteHost.startsWith('http://') || remoteHost.startsWith('https://'))) {
+    try {
+      const url = new URL(remoteHost);
+      if (url.pathname && url.pathname !== '/') {
+        if (rawRemotePath && rawRemotePath !== '/') {
+          throw new Error(
+            "Cannot set both a URL path in 'remoteHost' and 'remotePath'. Use one or the other."
+          );
+        }
+        remotePath = url.pathname;
+      }
+      remoteHost = url.origin;
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('Cannot set both')) throw e;
+      // Not a valid URL, treat as plain hostname
+    }
+  }
+
+  const exclude = parseList(core.getInput('exclude'));
+  const deleteExcluded = core.getBooleanInput('deleteExcluded');
+
+  if (deleteExcluded && exclude.length === 0) {
+    core.warning("'deleteExcluded' is enabled but no 'exclude' patterns are set. It will have no effect.");
+  }
+
+  const verboseInput = core.getBooleanInput('verbose');
+  const envStepDebug = (process.env.ACTIONS_STEP_DEBUG || '').toLowerCase();
+  const stepDebugEnabled = core.isDebug() || envStepDebug === 'true' || envStepDebug === '1';
+  const verbose = verboseInput || stepDebugEnabled;
+
+  return {
+    sources,
+    recursive: core.getBooleanInput('recursive'),
+    mode,
+    remoteType,
+    remoteHost,
+    remotePort: core.getInput('remotePort'),
+    remoteUser: core.getInput('remoteUser'),
+    remotePass,
+    remotePath,
+    rcloneConfig,
+    rcloneFlags: core.getInput('rcloneFlags'),
+    skipCertificateCheck: core.getBooleanInput('skipCertificateCheck'),
+    include: parseList(core.getInput('include')),
+    exclude,
+    deleteExcluded,
+    installRclone: core.getBooleanInput('installRclone'),
+    rcloneVersion: core.getInput('rcloneVersion') || 'latest',
+    dryRun: core.getBooleanInput('dryRun'),
+    verbose,
+  };
+}
