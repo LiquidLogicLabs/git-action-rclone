@@ -36,6 +36,7 @@ function createBaseInputs(overrides: Partial<ActionInputs> = {}): ActionInputs {
     rcloneVersion: 'latest',
     dryRun: false,
     verbose: false,
+    debugMode: false,
     ...overrides,
   };
 }

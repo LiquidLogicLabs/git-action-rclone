@@ -10,6 +10,10 @@ function parseList(raw: string): string[] {
     .filter((s) => s.length > 0);
 }
 
+function parseBoolean(val?: string): boolean {
+  return val?.toLowerCase() === 'true' || val === '1';
+}
+
 export function getInputs(): ActionInputs {
   const sourcesRaw = core.getInput('sources', { required: true });
   const sources = parseList(sourcesRaw);
@@ -23,29 +27,29 @@ export function getInputs(): ActionInputs {
     throw new Error(`Input 'mode' must be one of: ${VALID_MODES.join(', ')}. Got: '${mode}'`);
   }
 
-  const remotePass = core.getInput('remotePass');
+  const remotePass = core.getInput('remote-pass');
   if (remotePass) {
     core.setSecret(remotePass);
   }
 
-  const rcloneConfig = core.getInput('rcloneConfig');
-  const remoteType = core.getInput('remoteType');
-  let remoteHost = core.getInput('remoteHost');
+  const rcloneConfig = core.getInput('rclone-config');
+  const remoteType = core.getInput('remote-type');
+  let remoteHost = core.getInput('remote-host');
 
   if (!rcloneConfig && !remoteType) {
     throw new Error(
-      "Either 'rcloneConfig' or 'remoteType' (with 'remoteHost') must be provided."
+      "Either 'rclone-config' or 'remote-type' (with 'remote-host') must be provided."
     );
   }
 
   if (remoteType && remoteType !== 'local' && !remoteHost && !rcloneConfig) {
     throw new Error(
-      `Input 'remoteHost' is required when 'remoteType' is '${remoteType}' (non-local backend).`
+      `Input 'remote-host' is required when 'remote-type' is '${remoteType}' (non-local backend).`
     );
   }
 
   // Parse URL path from remoteHost (http/https URLs only)
-  const rawRemotePath = core.getInput('remotePath');
+  const rawRemotePath = core.getInput('remote-path');
   let remotePath = rawRemotePath || '/';
 
   if (remoteHost && (remoteHost.startsWith('http://') || remoteHost.startsWith('https://'))) {
@@ -54,7 +58,7 @@ export function getInputs(): ActionInputs {
       if (url.pathname && url.pathname !== '/') {
         if (rawRemotePath && rawRemotePath !== '/') {
           throw new Error(
-            "Cannot set both a URL path in 'remoteHost' and 'remotePath'. Use one or the other."
+            "Cannot set both a URL path in 'remote-host' and 'remote-path'. Use one or the other."
           );
         }
         remotePath = url.pathname;
@@ -67,16 +71,19 @@ export function getInputs(): ActionInputs {
   }
 
   const exclude = parseList(core.getInput('exclude'));
-  const deleteExcluded = core.getBooleanInput('deleteExcluded');
+  const deleteExcluded = core.getBooleanInput('delete-excluded');
 
   if (deleteExcluded && exclude.length === 0) {
-    core.warning("'deleteExcluded' is enabled but no 'exclude' patterns are set. It will have no effect.");
+    core.warning("'delete-excluded' is enabled but no 'exclude' patterns are set. It will have no effect.");
   }
 
   const verboseInput = core.getBooleanInput('verbose');
-  const envStepDebug = (process.env.ACTIONS_STEP_DEBUG || '').toLowerCase();
-  const stepDebugEnabled = core.isDebug() || envStepDebug === 'true' || envStepDebug === '1';
-  const verbose = verboseInput || stepDebugEnabled;
+  const debugMode =
+    (typeof core.isDebug === 'function' && core.isDebug()) ||
+    parseBoolean(process.env.ACTIONS_STEP_DEBUG) ||
+    parseBoolean(process.env.ACTIONS_RUNNER_DEBUG) ||
+    parseBoolean(process.env.RUNNER_DEBUG);
+  const verbose = verboseInput || debugMode;
 
   return {
     sources,
@@ -84,19 +91,20 @@ export function getInputs(): ActionInputs {
     mode,
     remoteType,
     remoteHost,
-    remotePort: core.getInput('remotePort'),
-    remoteUser: core.getInput('remoteUser'),
+    remotePort: core.getInput('remote-port'),
+    remoteUser: core.getInput('remote-user'),
     remotePass,
     remotePath,
     rcloneConfig,
-    rcloneFlags: core.getInput('rcloneFlags'),
-    skipCertificateCheck: core.getBooleanInput('skipCertificateCheck'),
+    rcloneFlags: core.getInput('rclone-flags'),
+    skipCertificateCheck: core.getBooleanInput('skip-certificate-check'),
     include: parseList(core.getInput('include')),
     exclude,
     deleteExcluded,
-    installRclone: core.getBooleanInput('installRclone'),
-    rcloneVersion: core.getInput('rcloneVersion') || 'latest',
-    dryRun: core.getBooleanInput('dryRun'),
+    installRclone: core.getBooleanInput('install-rclone'),
+    rcloneVersion: core.getInput('rclone-version') || 'latest',
+    dryRun: core.getBooleanInput('dry-run'),
     verbose,
+    debugMode,
   };
 }

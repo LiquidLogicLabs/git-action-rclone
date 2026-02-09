@@ -26,12 +26,12 @@ describe('getInputs', () => {
       sources: 'dist/,README.md, src/file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'sftp',
-      remoteHost: 'example.com',
-      remotePath: '/uploads',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'sftp',
+      'remote-host': 'example.com',
+      'remote-path': '/uploads',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
@@ -47,11 +47,11 @@ describe('getInputs', () => {
       sources: 'dist/\nREADME.md\nsrc/',
       recursive: 'true',
       mode: 'copy',
-      remoteType: 'local',
-      remotePath: '/tmp/dest',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'local',
+      'remote-path': '/tmp/dest',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
@@ -65,12 +65,12 @@ describe('getInputs', () => {
       sources: '  dist/ , , README.md ,  ',
       recursive: 'false',
       mode: 'sync',
-      remoteType: 'sftp',
-      remoteHost: 'host.com',
-      remotePath: '/',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'sftp',
+      'remote-host': 'host.com',
+      'remote-path': '/',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
@@ -83,11 +83,11 @@ describe('getInputs', () => {
       sources: '  ,  , ',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'sftp',
-      remoteHost: 'host.com',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'sftp',
+      'remote-host': 'host.com',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
@@ -99,56 +99,56 @@ describe('getInputs', () => {
       sources: 'file.txt',
       recursive: 'true',
       mode: 'mirror',
-      remoteType: 'sftp',
-      remoteHost: 'host.com',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'sftp',
+      'remote-host': 'host.com',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
     expect(() => getInputs()).toThrow("'mode' must be one of: sync, copy");
   });
 
-  it('throws when neither rcloneConfig nor remoteType is provided', () => {
+  it('throws when neither rclone-config nor remote-type is provided', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
-    expect(() => getInputs()).toThrow("Either 'rcloneConfig' or 'remoteType'");
+    expect(() => getInputs()).toThrow("Either 'rclone-config' or 'remote-type'");
   });
 
-  it('throws when non-local remoteType is used without remoteHost', () => {
+  it('throws when non-local remote-type is used without remote-host', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'sftp',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'sftp',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
-    expect(() => getInputs()).toThrow("'remoteHost' is required");
+    expect(() => getInputs()).toThrow("'remote-host' is required");
   });
 
-  it('allows local remoteType without remoteHost', () => {
+  it('allows local remote-type without remote-host', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'local',
-      remotePath: '/tmp/dest',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'local',
+      'remote-path': '/tmp/dest',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
@@ -157,17 +157,17 @@ describe('getInputs', () => {
     expect(inputs.remoteHost).toBe('');
   });
 
-  it('masks remotePass as a secret', () => {
+  it('masks remote-pass as a secret', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'sftp',
-      remoteHost: 'host.com',
-      remotePass: 'my-secret-pass',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'sftp',
+      'remote-host': 'host.com',
+      'remote-pass': 'my-secret-pass',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
@@ -175,15 +175,15 @@ describe('getInputs', () => {
     expect(mockedCore.setSecret).toHaveBeenCalledWith('my-secret-pass');
   });
 
-  it('accepts rcloneConfig without remoteType', () => {
+  it('accepts rclone-config without remote-type', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'copy',
-      rcloneConfig: '[myremote]\ntype = sftp\nhost = example.com',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'rclone-config': '[myremote]\ntype = sftp\nhost = example.com',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
@@ -197,15 +197,15 @@ describe('getInputs', () => {
       sources: 'dist/',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'local',
-      remotePath: '/tmp/dest',
+      'remote-type': 'local',
+      'remote-path': '/tmp/dest',
       include: '*.txt, *.log',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'false',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'false',
     });
 
     const inputs = getInputs();
@@ -217,15 +217,15 @@ describe('getInputs', () => {
       sources: 'dist/',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'local',
-      remotePath: '/tmp/dest',
+      'remote-type': 'local',
+      'remote-path': '/tmp/dest',
       exclude: '*.tmp\n.git/**',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'false',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'false',
     });
 
     const inputs = getInputs();
@@ -237,14 +237,14 @@ describe('getInputs', () => {
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'local',
-      remotePath: '/tmp/dest',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'local',
+      'remote-path': '/tmp/dest',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'false',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'false',
     });
 
     const inputs = getInputs();
@@ -252,19 +252,19 @@ describe('getInputs', () => {
     expect(inputs.exclude).toEqual([]);
   });
 
-  it('defaults skipCertificateCheck and deleteExcluded to false', () => {
+  it('defaults skip-certificate-check and delete-excluded to false', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'local',
-      remotePath: '/tmp/dest',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'local',
+      'remote-path': '/tmp/dest',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'false',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'false',
     });
 
     const inputs = getInputs();
@@ -272,37 +272,37 @@ describe('getInputs', () => {
     expect(inputs.deleteExcluded).toBe(false);
   });
 
-  it('warns when deleteExcluded is true but no exclude patterns set', () => {
+  it('warns when delete-excluded is true but no exclude patterns set', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'local',
-      remotePath: '/tmp/dest',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'local',
+      'remote-path': '/tmp/dest',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'true',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'true',
     });
 
     getInputs();
     expect(mockedCore.warning).toHaveBeenCalledWith(
-      expect.stringContaining('deleteExcluded')
+      expect.stringContaining('delete-excluded')
     );
   });
 
-  it('defaults remotePath to / when empty', () => {
+  it('defaults remote-path to / when empty', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'local',
-      remotePath: '',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'local',
+      'remote-path': '',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
     });
 
@@ -310,20 +310,20 @@ describe('getInputs', () => {
     expect(inputs.remotePath).toBe('/');
   });
 
-  it('extracts path from URL in remoteHost', () => {
+  it('extracts path from URL in remote-host', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'webdav',
-      remoteHost: 'https://cloud.example.com/remote.php/dav/files/user',
-      remotePath: '',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'webdav',
+      'remote-host': 'https://cloud.example.com/remote.php/dav/files/user',
+      'remote-path': '',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'false',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'false',
     });
 
     const inputs = getInputs();
@@ -331,20 +331,20 @@ describe('getInputs', () => {
     expect(inputs.remotePath).toBe('/remote.php/dav/files/user');
   });
 
-  it('leaves remotePath unchanged when URL has no path', () => {
+  it('leaves remote-path unchanged when URL has no path', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'webdav',
-      remoteHost: 'https://cloud.example.com',
-      remotePath: '/uploads',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'webdav',
+      'remote-host': 'https://cloud.example.com',
+      'remote-path': '/uploads',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'false',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'false',
     });
 
     const inputs = getInputs();
@@ -352,39 +352,39 @@ describe('getInputs', () => {
     expect(inputs.remotePath).toBe('/uploads');
   });
 
-  it('throws when URL has path and remotePath is also set', () => {
+  it('throws when URL has path and remote-path is also set', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'webdav',
-      remoteHost: 'https://cloud.example.com/dav',
-      remotePath: '/uploads',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'webdav',
+      'remote-host': 'https://cloud.example.com/dav',
+      'remote-path': '/uploads',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'false',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'false',
     });
 
-    expect(() => getInputs()).toThrow("Cannot set both a URL path in 'remoteHost' and 'remotePath'");
+    expect(() => getInputs()).toThrow("Cannot set both a URL path in 'remote-host' and 'remote-path'");
   });
 
-  it('does not parse non-URL remoteHost', () => {
+  it('does not parse non-URL remote-host', () => {
     mockInput({
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'sftp',
-      remoteHost: 'files.example.com',
-      remotePath: '/var/www',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'sftp',
+      'remote-host': 'files.example.com',
+      'remote-path': '/var/www',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'false',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'false',
     });
 
     const inputs = getInputs();
@@ -397,15 +397,15 @@ describe('getInputs', () => {
       sources: 'file.txt',
       recursive: 'true',
       mode: 'sync',
-      remoteType: 'webdav',
-      remoteHost: 'https://cloud.example.com:8443/dav',
-      remotePath: '',
-      installRclone: 'true',
-      rcloneVersion: 'latest',
-      dryRun: 'false',
+      'remote-type': 'webdav',
+      'remote-host': 'https://cloud.example.com:8443/dav',
+      'remote-path': '',
+      'install-rclone': 'true',
+      'rclone-version': 'latest',
+      'dry-run': 'false',
       verbose: 'false',
-      skipCertificateCheck: 'false',
-      deleteExcluded: 'false',
+      'skip-certificate-check': 'false',
+      'delete-excluded': 'false',
     });
 
     const inputs = getInputs();

@@ -24,46 +24,47 @@ Supports **GitHub Actions**, **Gitea Actions**, and **nektos/act** local runner.
 - uses: LiquidLogicLabs/git-action-rclone@v1
   with:
     sources: dist/
-    remoteType: sftp
-    remoteHost: files.example.com
-    remoteUser: deploy
-    remotePass: ${{ secrets.DEPLOY_PASSWORD }}
-    remotePath: /var/www/mysite
+    remote-type: sftp
+    remote-host: files.example.com
+    remote-user: deploy
+    remote-pass: ${{ secrets.DEPLOY_PASSWORD }}
+    remote-path: /var/www/mysite
 ```
 
 ## Inputs
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `sources` | **yes** | — | Comma or newline-separated list of files/folders to publish. For folders, a trailing slash (`dir/`) syncs contents directly; without it (`dir`), the folder name is appended to remotePath |
+| `sources` | **yes** | — | Comma or newline-separated list of files/folders to publish. For folders, a trailing slash (`dir/`) syncs contents directly; without it (`dir`), the folder name is appended to remote-path |
 | `recursive` | no | `true` | Recursively copy folder contents |
 | `mode` | no | `sync` | Transfer mode: `sync` (mirror, deletes extra remote files) or `copy` (additive only) |
-| `remoteType` | no* | — | rclone backend type (`sftp`, `s3`, `webdav`, `ftp`, `local`, etc.) |
-| `remoteHost` | no* | — | Remote server address (http/https URLs auto-extract path to remotePath) |
-| `remotePort` | no | — | Remote server port |
-| `remoteUser` | no | — | Auth username |
-| `remotePass` | no | — | Auth password (plain-text; auto-obscured by the action) |
-| `remotePath` | no | `/` | Base path on the remote |
-| `rcloneConfig` | no | — | Raw rclone.conf content (overrides individual remote inputs) |
-| `rcloneFlags` | no | — | Extra flags passed to every rclone command |
-| `skipCertificateCheck` | no | `false` | Skip TLS certificate verification (for self-signed certs) |
+| `remote-type` | no* | — | rclone backend type (`sftp`, `s3`, `webdav`, `ftp`, `local`, etc.) |
+| `remote-host` | no* | — | Remote server address (http/https URLs auto-extract path to remote-path) |
+| `remote-port` | no | — | Remote server port |
+| `remote-user` | no | — | Auth username |
+| `remote-pass` | no | — | Auth password (plain-text; auto-obscured by the action) |
+| `remote-path` | no | `/` | Base path on the remote |
+| `rclone-config` | no | — | Raw rclone.conf content (overrides individual remote inputs) |
+| `rclone-flags` | no | — | Extra flags passed to every rclone command |
+| `skip-certificate-check` | no | `false` | Skip TLS certificate verification (for self-signed certs) |
 | `include` | no | — | Comma/newline-separated include filter patterns (only matching files transferred) |
 | `exclude` | no | — | Comma/newline-separated exclude filter patterns (matching files skipped) |
-| `deleteExcluded` | no | `false` | Delete files on remote that match exclude patterns |
-| `installRclone` | no | `true` | Install rclone if not found on PATH |
-| `rcloneVersion` | no | `latest` | rclone version to install |
-| `dryRun` | no | `false` | Run with `--dry-run` (no files transferred) |
+| `delete-excluded` | no | `false` | Delete files on remote that match exclude patterns |
+| `install-rclone` | no | `true` | Install rclone if not found on PATH |
+| `rclone-version` | no | `latest` | rclone version to install |
+| `dry-run` | no | `false` | Run with `--dry-run` (no files transferred) |
 | `verbose` | no | `false` | Enable verbose logging (also dumps filter rules) |
 
-\* Either `remoteType` + `remoteHost` **or** `rcloneConfig` is required.
+\* Either `remote-type` + `remote-host` **or** `rclone-config` is required.
 
 ## Outputs
 
 | Output | Description |
 |--------|-------------|
 | `success` | `true` if all transfers succeeded |
-| `transferredFiles` | Total number of files transferred |
-| `rcloneVersion` | Installed rclone version |
+| `transferred-files` | Total number of files transferred |
+| `rclone-version` | Installed rclone version |
+| `exit-code` | Exit code of the last rclone command |
 
 ## Permissions
 
@@ -83,11 +84,11 @@ No elevated permissions required.
   with:
     sources: build/
     mode: sync
-    remoteType: sftp
-    remoteHost: files.example.com
-    remoteUser: deploy
-    remotePass: ${{ secrets.SFTP_PASSWORD }}
-    remotePath: /var/www/html
+    remote-type: sftp
+    remote-host: files.example.com
+    remote-user: deploy
+    remote-pass: ${{ secrets.SFTP_PASSWORD }}
+    remote-path: /var/www/html
 ```
 
 ### Copy multiple files to S3
@@ -100,10 +101,10 @@ No elevated permissions required.
       dist/app.css
       dist/index.html
     mode: copy
-    remoteType: s3
-    remoteHost: s3.amazonaws.com
-    remotePath: my-bucket/deploy
-    rcloneFlags: '--s3-region us-east-1'
+    remote-type: s3
+    remote-host: s3.amazonaws.com
+    remote-path: my-bucket/deploy
+    rclone-flags: '--s3-region us-east-1'
   env:
     RCLONE_CONFIG_REMOTE_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
     RCLONE_CONFIG_REMOTE_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
@@ -116,12 +117,12 @@ No elevated permissions required.
   with:
     sources: reports/
     mode: copy
-    remoteType: webdav
-    remoteHost: https://cloud.example.com/remote.php/dav/files/user/
-    remoteUser: user
-    remotePass: ${{ secrets.NEXTCLOUD_PASSWORD }}
-    remotePath: /uploads
-    rcloneFlags: '--webdav-vendor nextcloud'
+    remote-type: webdav
+    remote-host: https://cloud.example.com/remote.php/dav/files/user/
+    remote-user: user
+    remote-pass: ${{ secrets.NEXTCLOUD_PASSWORD }}
+    remote-path: /uploads
+    rclone-flags: '--webdav-vendor nextcloud'
 ```
 
 ### Custom rclone config
@@ -130,7 +131,7 @@ No elevated permissions required.
 - uses: LiquidLogicLabs/git-action-rclone@v1
   with:
     sources: data/
-    rcloneConfig: |
+    rclone-config: |
       [myremote]
       type = sftp
       host = example.com
@@ -146,13 +147,13 @@ No elevated permissions required.
   with:
     sources: build/
     mode: sync
-    remoteType: sftp
-    remoteHost: files.example.com
-    remoteUser: deploy
-    remotePass: ${{ secrets.SFTP_PASSWORD }}
-    remotePath: /var/www/html
+    remote-type: sftp
+    remote-host: files.example.com
+    remote-user: deploy
+    remote-pass: ${{ secrets.SFTP_PASSWORD }}
+    remote-path: /var/www/html
     exclude: '*.tmp, .git/**, node_modules/**'
-    deleteExcluded: 'true'
+    delete-excluded: 'true'
 ```
 
 ### Self-signed certificate
@@ -161,12 +162,12 @@ No elevated permissions required.
 - uses: LiquidLogicLabs/git-action-rclone@v1
   with:
     sources: dist/
-    remoteType: webdav
-    remoteHost: https://internal-server.local/dav/
-    remoteUser: admin
-    remotePass: ${{ secrets.WEBDAV_PASSWORD }}
-    remotePath: /uploads
-    skipCertificateCheck: 'true'
+    remote-type: webdav
+    remote-host: https://internal-server.local/dav/
+    remote-user: admin
+    remote-pass: ${{ secrets.WEBDAV_PASSWORD }}
+    remote-path: /uploads
+    skip-certificate-check: 'true'
 ```
 
 ### Dry run for testing
@@ -175,12 +176,12 @@ No elevated permissions required.
 - uses: LiquidLogicLabs/git-action-rclone@v1
   with:
     sources: dist/
-    remoteType: sftp
-    remoteHost: files.example.com
-    remoteUser: deploy
-    remotePass: ${{ secrets.DEPLOY_PASSWORD }}
-    remotePath: /var/www/mysite
-    dryRun: 'true'
+    remote-type: sftp
+    remote-host: files.example.com
+    remote-user: deploy
+    remote-pass: ${{ secrets.DEPLOY_PASSWORD }}
+    remote-path: /var/www/mysite
+    dry-run: 'true'
     verbose: 'true'
 ```
 
@@ -207,9 +208,9 @@ exclude: '*'
 
 ## Security
 
-- `remotePass` is masked via `core.setSecret()` — it will never appear in logs
-- When using individual inputs (not `rcloneConfig`), passwords are auto-obscured via `rclone obscure` before being set as environment variables
-- Temp config files (when using `rcloneConfig`) are written with mode `0600` and deleted after use
+- `remote-pass` is masked via `core.setSecret()` — it will never appear in logs
+- When using individual inputs (not `rclone-config`), passwords are auto-obscured via `rclone obscure` before being set as environment variables
+- Temp config files (when using `rclone-config`) are written with mode `0600` and deleted after use
 - Never commit real secrets; use GitHub Secrets or equivalent
 
 ## Local Development

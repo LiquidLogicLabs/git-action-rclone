@@ -28244,6 +28244,9 @@ function parseList(raw) {
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
 }
+function parseBoolean(val) {
+    return val?.toLowerCase() === 'true' || val === '1';
+}
 function getInputs() {
     const sourcesRaw = core.getInput('sources', { required: true });
     const sources = parseList(sourcesRaw);
@@ -28254,28 +28257,28 @@ function getInputs() {
     if (!VALID_MODES.includes(mode)) {
         throw new Error(`Input 'mode' must be one of: ${VALID_MODES.join(', ')}. Got: '${mode}'`);
     }
-    const remotePass = core.getInput('remotePass');
+    const remotePass = core.getInput('remote-pass');
     if (remotePass) {
         core.setSecret(remotePass);
     }
-    const rcloneConfig = core.getInput('rcloneConfig');
-    const remoteType = core.getInput('remoteType');
-    let remoteHost = core.getInput('remoteHost');
+    const rcloneConfig = core.getInput('rclone-config');
+    const remoteType = core.getInput('remote-type');
+    let remoteHost = core.getInput('remote-host');
     if (!rcloneConfig && !remoteType) {
-        throw new Error("Either 'rcloneConfig' or 'remoteType' (with 'remoteHost') must be provided.");
+        throw new Error("Either 'rclone-config' or 'remote-type' (with 'remote-host') must be provided.");
     }
     if (remoteType && remoteType !== 'local' && !remoteHost && !rcloneConfig) {
-        throw new Error(`Input 'remoteHost' is required when 'remoteType' is '${remoteType}' (non-local backend).`);
+        throw new Error(`Input 'remote-host' is required when 'remote-type' is '${remoteType}' (non-local backend).`);
     }
     // Parse URL path from remoteHost (http/https URLs only)
-    const rawRemotePath = core.getInput('remotePath');
+    const rawRemotePath = core.getInput('remote-path');
     let remotePath = rawRemotePath || '/';
     if (remoteHost && (remoteHost.startsWith('http://') || remoteHost.startsWith('https://'))) {
         try {
             const url = new URL(remoteHost);
             if (url.pathname && url.pathname !== '/') {
                 if (rawRemotePath && rawRemotePath !== '/') {
-                    throw new Error("Cannot set both a URL path in 'remoteHost' and 'remotePath'. Use one or the other.");
+                    throw new Error("Cannot set both a URL path in 'remote-host' and 'remote-path'. Use one or the other.");
                 }
                 remotePath = url.pathname;
             }
@@ -28288,34 +28291,37 @@ function getInputs() {
         }
     }
     const exclude = parseList(core.getInput('exclude'));
-    const deleteExcluded = core.getBooleanInput('deleteExcluded');
+    const deleteExcluded = core.getBooleanInput('delete-excluded');
     if (deleteExcluded && exclude.length === 0) {
-        core.warning("'deleteExcluded' is enabled but no 'exclude' patterns are set. It will have no effect.");
+        core.warning("'delete-excluded' is enabled but no 'exclude' patterns are set. It will have no effect.");
     }
     const verboseInput = core.getBooleanInput('verbose');
-    const envStepDebug = (process.env.ACTIONS_STEP_DEBUG || '').toLowerCase();
-    const stepDebugEnabled = core.isDebug() || envStepDebug === 'true' || envStepDebug === '1';
-    const verbose = verboseInput || stepDebugEnabled;
+    const debugMode = (typeof core.isDebug === 'function' && core.isDebug()) ||
+        parseBoolean(process.env.ACTIONS_STEP_DEBUG) ||
+        parseBoolean(process.env.ACTIONS_RUNNER_DEBUG) ||
+        parseBoolean(process.env.RUNNER_DEBUG);
+    const verbose = verboseInput || debugMode;
     return {
         sources,
         recursive: core.getBooleanInput('recursive'),
         mode,
         remoteType,
         remoteHost,
-        remotePort: core.getInput('remotePort'),
-        remoteUser: core.getInput('remoteUser'),
+        remotePort: core.getInput('remote-port'),
+        remoteUser: core.getInput('remote-user'),
         remotePass,
         remotePath,
         rcloneConfig,
-        rcloneFlags: core.getInput('rcloneFlags'),
-        skipCertificateCheck: core.getBooleanInput('skipCertificateCheck'),
+        rcloneFlags: core.getInput('rclone-flags'),
+        skipCertificateCheck: core.getBooleanInput('skip-certificate-check'),
         include: parseList(core.getInput('include')),
         exclude,
         deleteExcluded,
-        installRclone: core.getBooleanInput('installRclone'),
-        rcloneVersion: core.getInput('rcloneVersion') || 'latest',
-        dryRun: core.getBooleanInput('dryRun'),
+        installRclone: core.getBooleanInput('install-rclone'),
+        rcloneVersion: core.getInput('rclone-version') || 'latest',
+        dryRun: core.getBooleanInput('dry-run'),
         verbose,
+        debugMode,
     };
 }
 
@@ -28369,13 +28375,13 @@ const logger_1 = __nccwpck_require__(6999);
 async function run() {
     try {
         const inputs = (0, config_1.getInputs)();
-        const logger = new logger_1.Logger(inputs.verbose);
+        const logger = new logger_1.Logger(inputs.verbose, inputs.debugMode);
         logger.debug('Parsed inputs successfully.');
         // Step 1: Ensure rclone is available
         const rcloneVersion = await logger.group('Ensure rclone', async () => {
             return (0, rclone_installer_1.ensureRclone)(inputs.installRclone, inputs.rcloneVersion, logger);
         });
-        core.setOutput('rcloneVersion', rcloneVersion);
+        core.setOutput('rclone-version', rcloneVersion);
         // Step 2: Run transfers
         const results = await logger.group('Transfer files', async () => {
             return (0, rclone_runner_1.runTransfers)(inputs, logger);
@@ -28384,7 +28390,7 @@ async function run() {
         const totalFiles = results.reduce((sum, r) => sum + r.filesTransferred, 0);
         const allSucceeded = results.every((r) => r.success);
         const failedSources = results.filter((r) => !r.success);
-        core.setOutput('transferredFiles', totalFiles.toString());
+        core.setOutput('transferred-files', totalFiles.toString());
         core.setOutput('success', allSucceeded ? 'true' : 'false');
         if (failedSources.length > 0) {
             const summary = failedSources
@@ -28449,25 +28455,41 @@ exports.Logger = void 0;
 const core = __importStar(__nccwpck_require__(7484));
 class Logger {
     verbose;
-    constructor(verbose) {
-        this.verbose = verbose;
+    debugMode;
+    constructor(verbose = false, debugMode = false) {
+        this.verbose = verbose || debugMode;
+        this.debugMode = debugMode;
     }
     info(message) {
         core.info(message);
     }
-    debug(message) {
-        if (this.verbose) {
-            core.info(`[DEBUG] ${message}`);
-        }
-        else {
-            core.debug(message);
-        }
+    warning(message) {
+        core.warning(message);
     }
     warn(message) {
         core.warning(message);
     }
     error(message) {
         core.error(message);
+    }
+    verboseInfo(message) {
+        if (this.verbose) {
+            core.info(message);
+        }
+    }
+    debug(message) {
+        if (this.debugMode) {
+            core.info(`[DEBUG] ${message}`);
+        }
+        else {
+            core.debug(message);
+        }
+    }
+    isVerbose() {
+        return this.verbose;
+    }
+    isDebug() {
+        return this.debugMode;
     }
     group(name, fn) {
         return core.group(name, fn);

@@ -40,8 +40,8 @@ jobs:
         with:
           sources: /tmp/e2e-src/single.txt
           mode: sync
-          remoteType: local
-          remotePath: /tmp/e2e-dest-1
+          remote-type: local
+          remote-path: /tmp/e2e-dest-1
 
       - name: "Verify Test 1"
         shell: bash
@@ -57,8 +57,8 @@ jobs:
         with:
           sources: "/tmp/e2e-src/file-a.txt, /tmp/e2e-src/file-b.txt"
           mode: copy
-          remoteType: local
-          remotePath: /tmp/e2e-dest-2
+          remote-type: local
+          remote-path: /tmp/e2e-dest-2
 
       - name: "Verify Test 2"
         shell: bash
@@ -77,8 +77,8 @@ jobs:
           sources: /tmp/e2e-src/nested
           recursive: 'true'
           mode: sync
-          remoteType: local
-          remotePath: /tmp/e2e-dest-3
+          remote-type: local
+          remote-path: /tmp/e2e-dest-3
 
       - name: "Verify Test 3"
         shell: bash
@@ -96,8 +96,8 @@ jobs:
           sources: /tmp/e2e-src/nested
           recursive: 'false'
           mode: copy
-          remoteType: local
-          remotePath: /tmp/e2e-dest-4
+          remote-type: local
+          remote-path: /tmp/e2e-dest-4
 
       - name: "Verify Test 4"
         shell: bash
@@ -126,8 +126,8 @@ jobs:
         with:
           sources: /tmp/e2e-src-5
           mode: sync
-          remoteType: local
-          remotePath: /tmp/e2e-dest-5
+          remote-type: local
+          remote-path: /tmp/e2e-dest-5
 
       - name: "Verify Test 5"
         shell: bash
@@ -150,8 +150,8 @@ jobs:
         with:
           sources: /tmp/e2e-src/single.txt
           mode: copy
-          remoteType: local
-          remotePath: /tmp/e2e-dest-6
+          remote-type: local
+          remote-path: /tmp/e2e-dest-6
 
       - name: "Verify Test 6"
         shell: bash
@@ -167,9 +167,9 @@ jobs:
         with:
           sources: /tmp/e2e-src/single.txt
           mode: sync
-          remoteType: local
-          remotePath: /tmp/e2e-dest-7
-          dryRun: 'true'
+          remote-type: local
+          remote-path: /tmp/e2e-dest-7
+          dry-run: 'true'
 
       - name: "Verify Test 7"
         shell: bash
@@ -186,9 +186,9 @@ jobs:
         with:
           sources: /tmp/e2e-src/single.txt
           mode: copy
-          remoteType: local
-          remotePath: /tmp/e2e-dest-8
-          installRclone: 'true'
+          remote-type: local
+          remote-path: /tmp/e2e-dest-8
+          install-rclone: 'true'
 
       - name: "Verify Test 8"
         shell: bash
@@ -213,8 +213,8 @@ jobs:
         with:
           sources: /tmp/e2e-src-9
           mode: copy
-          remoteType: local
-          remotePath: /tmp/e2e-dest-9
+          remote-type: local
+          remote-path: /tmp/e2e-dest-9
           exclude: '*.tmp'
 
       - name: "Verify Test 9"
@@ -244,10 +244,10 @@ jobs:
         with:
           sources: /tmp/e2e-src-10
           mode: sync
-          remoteType: local
-          remotePath: /tmp/e2e-dest-10
+          remote-type: local
+          remote-path: /tmp/e2e-dest-10
           exclude: '*.tmp'
-          deleteExcluded: 'true'
+          delete-excluded: 'true'
 
       - name: "Verify Test 10"
         shell: bash

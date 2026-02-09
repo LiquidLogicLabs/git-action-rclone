@@ -20,6 +20,7 @@ export interface ActionInputs {
   rcloneVersion: string;
   dryRun: boolean;
   verbose: boolean;
+  debugMode: boolean;
 }
 
 export interface TransferResult {

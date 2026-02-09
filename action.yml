@@ -23,45 +23,45 @@ inputs:
     required: false
     default: 'sync'
 
-  remoteType:
+  remote-type:
     description: 'rclone backend type (e.g. sftp, s3, webdav, ftp, local). Required unless rcloneConfig is provided.'
     required: false
 
-  remoteHost:
+  remote-host:
     description: >
       Remote server address/hostname. Required unless rcloneConfig is provided or remoteType is "local".
       For http/https URLs, any path component is auto-extracted and used as remotePath
       (e.g. "https://cloud.example.com/dav/uploads" sets host to "https://cloud.example.com" and path to "/dav/uploads").
     required: false
 
-  remotePort:
+  remote-port:
     description: 'Remote server port (optional, uses backend default if omitted).'
     required: false
 
-  remoteUser:
+  remote-user:
     description: 'Authentication username.'
     required: false
 
-  remotePass:
+  remote-pass:
     description: 'Authentication password (plain-text; auto-obscured by the action). Treat as a secret.'
     required: false
 
-  remotePath:
+  remote-path:
     description: 'Base path on the remote where files will be published.'
     required: false
     default: '/'
 
-  rcloneConfig:
+  rclone-config:
     description: >
       Raw rclone.conf content. When provided, overrides individual remote* inputs.
       The first remote defined in the config will be used.
     required: false
 
-  rcloneFlags:
+  rclone-flags:
     description: 'Extra flags appended to every rclone command (e.g. "--transfers 8 --checkers 16").'
     required: false
 
-  skipCertificateCheck:
+  skip-certificate-check:
     description: 'Skip TLS certificate verification (for self-signed certificates).'
     required: false
     default: 'false'
@@ -80,22 +80,22 @@ inputs:
       Only applies to directory sources.
     required: false
 
-  deleteExcluded:
+  delete-excluded:
     description: 'Delete files on the remote that match exclude filter patterns. Requires exclude to be set.'
     required: false
     default: 'false'
 
-  installRclone:
+  install-rclone:
     description: 'Install rclone if not found on PATH.'
     required: false
     default: 'true'
 
-  rcloneVersion:
+  rclone-version:
     description: 'rclone version to install (e.g. "v1.68.2"). Use "latest" for the newest stable release.'
     required: false
     default: 'latest'
 
-  dryRun:
+  dry-run:
     description: 'Run rclone with --dry-run (no files are actually transferred).'
     required: false
     default: 'false'
@@ -109,11 +109,14 @@ outputs:
   success:
     description: '"true" if all transfers succeeded, "false" otherwise.'
 
-  transferredFiles:
+  transferred-files:
     description: 'Total number of files transferred.'
 
-  rcloneVersion:
+  rclone-version:
     description: 'Installed rclone version string.'
+
+  exit-code:
+    description: 'Exit code of the last rclone command.'
 
 runs:
   using: node20

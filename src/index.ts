@@ -7,7 +7,7 @@ import { Logger } from './logger';
 async function run(): Promise<void> {
   try {
     const inputs = getInputs();
-    const logger = new Logger(inputs.verbose);
+    const logger = new Logger(inputs.verbose, inputs.debugMode);
 
     logger.debug('Parsed inputs successfully.');
 
@@ -15,7 +15,7 @@ async function run(): Promise<void> {
     const rcloneVersion = await logger.group('Ensure rclone', async () => {
       return ensureRclone(inputs.installRclone, inputs.rcloneVersion, logger);
     });
-    core.setOutput('rcloneVersion', rcloneVersion);
+    core.setOutput('rclone-version', rcloneVersion);
 
     // Step 2: Run transfers
     const results = await logger.group('Transfer files', async () => {
@@ -27,7 +27,7 @@ async function run(): Promise<void> {
     const allSucceeded = results.every((r) => r.success);
     const failedSources = results.filter((r) => !r.success);
 
-    core.setOutput('transferredFiles', totalFiles.toString());
+    core.setOutput('transferred-files', totalFiles.toString());
     core.setOutput('success', allSucceeded ? 'true' : 'false');
 
     if (failedSources.length > 0) {
