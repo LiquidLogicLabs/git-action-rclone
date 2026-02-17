@@ -28611,7 +28611,6 @@ async function installLinuxMac(version, logger) {
     logger.info(`Downloading rclone ${cleanVersion} from ${url}...`);
     const downloadPath = await tc.downloadTool(url);
     const extractedPath = await tc.extractZip(downloadPath);
-    const binDir = path.join(extractedPath, filename);
     const cachedPath = await tc.cacheDir(extractedPath, 'rclone', cleanVersion);
     const cachedBinDir = path.join(cachedPath, filename);
     core.addPath(cachedBinDir);
