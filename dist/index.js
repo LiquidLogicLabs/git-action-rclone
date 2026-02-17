@@ -28548,6 +28548,23 @@ const io = __importStar(__nccwpck_require__(4994));
 const tc = __importStar(__nccwpck_require__(3472));
 const os = __importStar(__nccwpck_require__(857));
 const path = __importStar(__nccwpck_require__(6928));
+/** Resolve "latest" to the current stable release tag (e.g. "v1.68.2") from GitHub. */
+async function resolveLatestVersion(logger) {
+    logger.info('Resolving latest rclone version from GitHub...');
+    const res = await fetch('https://api.github.com/repos/rclone/rclone/releases/latest', {
+        headers: { Accept: 'application/vnd.github+json' },
+    });
+    if (!res.ok) {
+        throw new Error(`Failed to resolve latest rclone version: ${res.status} ${res.statusText}`);
+    }
+    const data = (await res.json());
+    const tag = data.tag_name;
+    if (!tag || typeof tag !== 'string') {
+        throw new Error('Invalid response from GitHub releases API: missing tag_name');
+    }
+    logger.debug(`Latest rclone version: ${tag}`);
+    return tag;
+}
 async function getRcloneVersion(logger) {
     try {
         let output = '';
@@ -28579,28 +28596,26 @@ async function isRcloneInstalled() {
         return false;
     }
 }
+/**
+ * Install rclone on Linux/macOS without sudo. Uses a user-writable directory
+ * (RUNNER_TEMP or tool-cache) and adds it to PATH so it works in CI, act, and
+ * restricted environments.
+ */
 async function installLinuxMac(version, logger) {
-    if (version === 'latest') {
-        logger.info('Installing latest rclone via official install script...');
-        await exec.exec('bash', ['-c', 'curl -fsSL https://rclone.org/install.sh | sudo bash'], {
-            silent: false,
-        });
-    }
-    else {
-        const cleanVersion = version.startsWith('v') ? version : `v${version}`;
-        const platform = os.platform() === 'darwin' ? 'osx' : 'linux';
-        const arch = os.arch() === 'arm64' ? 'arm64' : 'amd64';
-        const filename = `rclone-${cleanVersion}-${platform}-${arch}`;
-        const url = `https://downloads.rclone.org/${cleanVersion}/${filename}.zip`;
-        logger.info(`Downloading rclone ${cleanVersion} from ${url}...`);
-        const downloadPath = await tc.downloadTool(url);
-        const extractedPath = await tc.extractZip(downloadPath);
-        const binDir = path.join(extractedPath, filename);
-        await exec.exec('sudo', ['cp', path.join(binDir, 'rclone'), '/usr/local/bin/rclone']);
-        await exec.exec('sudo', ['chmod', '+x', '/usr/local/bin/rclone']);
-    }
-    core.addPath('/usr/local/bin');
-    return '/usr/local/bin/rclone';
+    const resolvedVersion = version === 'latest' ? await resolveLatestVersion(logger) : version;
+    const cleanVersion = resolvedVersion.startsWith('v') ? resolvedVersion : `v${resolvedVersion}`;
+    const platform = os.platform() === 'darwin' ? 'osx' : 'linux';
+    const arch = os.arch() === 'arm64' ? 'arm64' : 'amd64';
+    const filename = `rclone-${cleanVersion}-${platform}-${arch}`;
+    const url = `https://downloads.rclone.org/${cleanVersion}/${filename}.zip`;
+    logger.info(`Downloading rclone ${cleanVersion} from ${url}...`);
+    const downloadPath = await tc.downloadTool(url);
+    const extractedPath = await tc.extractZip(downloadPath);
+    const binDir = path.join(extractedPath, filename);
+    const cachedPath = await tc.cacheDir(extractedPath, 'rclone', cleanVersion);
+    const cachedBinDir = path.join(cachedPath, filename);
+    core.addPath(cachedBinDir);
+    return path.join(cachedBinDir, 'rclone');
 }
 async function installWindows(version, logger) {
     const cleanVersion = version === 'latest' ? 'current' : version.startsWith('v') ? version : `v${version}`;

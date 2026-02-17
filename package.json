@@ -7,7 +7,7 @@
     "prepare": "husky install",
     "build": "tsc && ncc build src/index.ts -o dist --source-map",
     "package": "npm run build",
-    "lint": "eslint src/**/*.ts --no-warn-ignored",
+    "lint": "eslint src/**/*.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
