@@ -19,6 +19,9 @@ Thumbs.db
 
 # Environment / secrets (local only)
 .env
+
+# Devcontainer secrets — copy of .devcontainer/.devcontainer-secrets.sample with real values
+.devcontainer-secrets
 .secrets
 .act.secrets
 
