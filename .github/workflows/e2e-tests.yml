@@ -16,7 +16,10 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          # No step in this job pushes; the credential is not needed.
+          persist-credentials: false
 
       # ── Setup: create test fixtures ──────────────────────────────
       - name: Create test fixtures
@@ -40,7 +43,7 @@ jobs:
 
       # ── Test 1: Single file sync ─────────────────────────────────
       - name: "Test 1: Single file sync"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: /tmp/e2e-src/single.txt
           mode: sync
@@ -57,7 +60,7 @@ jobs:
 
       # ── Test 2: Multiple files ───────────────────────────────────
       - name: "Test 2: Multiple files (comma-separated)"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: "/tmp/e2e-src/file-a.txt, /tmp/e2e-src/file-b.txt"
           mode: copy
@@ -76,7 +79,7 @@ jobs:
 
       # ── Test 3: Folder recursive ─────────────────────────────────
       - name: "Test 3: Folder recursive"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: /tmp/e2e-src/nested
           recursive: 'true'
@@ -95,7 +98,7 @@ jobs:
 
       # ── Test 4: Folder non-recursive ─────────────────────────────
       - name: "Test 4: Folder non-recursive"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: /tmp/e2e-src/nested
           recursive: 'false'
@@ -126,7 +129,7 @@ jobs:
           echo "old kept" > /tmp/e2e-dest-5/e2e-src-5/kept.txt
 
       - name: "Test 5: Sync mode deletes extra files"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: /tmp/e2e-src-5
           mode: sync
@@ -150,7 +153,7 @@ jobs:
           echo "extra file" > /tmp/e2e-dest-6/extra.txt
 
       - name: "Test 6: Copy mode preserves extra files"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: /tmp/e2e-src/single.txt
           mode: copy
@@ -167,7 +170,7 @@ jobs:
 
       # ── Test 7: Dry run ──────────────────────────────────────────
       - name: "Test 7: Dry run"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: /tmp/e2e-src/single.txt
           mode: sync
@@ -186,7 +189,7 @@ jobs:
       # rclone is already installed from earlier test steps, so this
       # validates that the action detects it and skips installation.
       - name: "Test 8: Use pre-installed rclone"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: /tmp/e2e-src/single.txt
           mode: copy
@@ -213,7 +216,7 @@ jobs:
           echo "skip me too" > /tmp/e2e-src-9/build.tmp
 
       - name: "Test 9: Exclude filter skips matching files"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: /tmp/e2e-src-9
           mode: copy
@@ -244,7 +247,7 @@ jobs:
           echo "old data" > /tmp/e2e-dest-10/e2e-src-10/data.txt
 
       - name: "Test 10: Delete-excluded removes excluded files from remote"
-        uses: ./
+        uses: ./  # zizmor: ignore[self-repository] — local ACTION reference under test, not a reusable-workflow call; $/ does not apply
         with:
           sources: /tmp/e2e-src-10
           mode: sync
