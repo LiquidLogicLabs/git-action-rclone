@@ -1,3 +1,13 @@
+## [2.0.4](https://github.com/LiquidLogicLabs/git-action-rclone/compare/v2.0.3...v2.0.4) (2026-09-04)
+
+
+### Bug Fixes
+
+* **lint:** quote eslint glob so all of src/ is linted ([25f6fdc](https://github.com/LiquidLogicLabs/git-action-rclone/commit/25f6fdc3b0d5d1c0e83417be6bdfa65908838f9a))
+* reject rclone arguments that would be read as flags ([9e9b5c7](https://github.com/LiquidLogicLabs/git-action-rclone/commit/9e9b5c7bb0d69b26441ff5646290990afb184fa0))
+
+
+
 ## [2.0.3](https://github.com/LiquidLogicLabs/git-action-rclone/compare/v2.0.2...v2.0.3) (2026-07-05)
 
 
