@@ -59698,12 +59698,31 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.assertNotOptionLike = assertNotOptionLike;
 exports.runTransfers = runTransfers;
 const exec = __importStar(__nccwpck_require__(5236));
 const fs = __importStar(__nccwpck_require__(9896));
 const os = __importStar(__nccwpck_require__(857));
 const path = __importStar(__nccwpck_require__(6928));
+/**
+ * Reject a value rclone would read as a flag rather than as data.
+ *
+ * Passing arguments as an array stops the SHELL interpreting them; it does nothing about
+ * rclone's own option parser, which reads a leading "-" as a flag wherever it appears.
+ * `--config <file>` in particular repoints rclone at a different remote definition.
+ *
+ * Deliberately NOT applied to `rclone-flags`, which is documented as "Extra flags appended
+ * to every rclone command" — guarding it would reject every legitimate use. Nor to
+ * `sources`, which reaches argv through path.resolve() and is therefore always absolute.
+ */
+function assertNotOptionLike(value, label) {
+    if (value.startsWith('-')) {
+        throw new Error(`Refusing to pass a ${label} beginning with "-" to rclone: ${JSON.stringify(value)}. ` +
+            'rclone would read it as a flag, and flags such as --config change which remote is used.');
+    }
+}
 async function obscurePassword(password) {
+    assertNotOptionLike(password, 'remote password');
     let output = '';
     await exec.exec('rclone', ['obscure', password], {
         silent: true,
@@ -59833,6 +59852,7 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
         // For directories without trailing slash, use the directory name as subfolder on remote
         destPath = path.posix.join(inputs.remotePath, path.basename(resolvedSource));
     }
+    assertNotOptionLike(remoteName, 'remote name');
     const dest = `${remoteName}:${destPath}`;
     // Build rclone args
     const args = [inputs.mode];
