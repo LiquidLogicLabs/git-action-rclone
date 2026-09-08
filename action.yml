@@ -1,4 +1,4 @@
-name: 'rclone Publish'
+name: 'Git rclone Publish'
 description: 'Install rclone and publish files/folders to any rclone-supported remote storage backend'
 author: 'LiquidLogicLabs'
 
