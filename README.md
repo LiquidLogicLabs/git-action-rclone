@@ -1,4 +1,4 @@
-# rclone Publish Action
+# Git rclone Publish
 
 A GitHub Action that installs [rclone](https://rclone.org/) and publishes files or folders to any rclone-supported remote storage backend.
 
@@ -21,7 +21,7 @@ Supports **GitHub Actions**, **Gitea Actions**, and **nektos/act** local runner.
 ## Quick Start
 
 ```yaml
-- uses: LiquidLogicLabs/git-action-rclone@v1
+- uses: LiquidLogicLabs/git-action-rclone@v2
   with:
     sources: dist/
     remote-type: sftp
@@ -80,7 +80,7 @@ No elevated permissions required.
 ### Sync a folder via SFTP
 
 ```yaml
-- uses: LiquidLogicLabs/git-action-rclone@v1
+- uses: LiquidLogicLabs/git-action-rclone@v2
   with:
     sources: build/
     mode: sync
@@ -94,7 +94,7 @@ No elevated permissions required.
 ### Copy multiple files to S3
 
 ```yaml
-- uses: LiquidLogicLabs/git-action-rclone@v1
+- uses: LiquidLogicLabs/git-action-rclone@v2
   with:
     sources: |
       dist/app.js
@@ -113,7 +113,7 @@ No elevated permissions required.
 ### Upload to WebDAV (Nextcloud)
 
 ```yaml
-- uses: LiquidLogicLabs/git-action-rclone@v1
+- uses: LiquidLogicLabs/git-action-rclone@v2
   with:
     sources: reports/
     mode: copy
@@ -128,7 +128,7 @@ No elevated permissions required.
 ### Custom rclone config
 
 ```yaml
-- uses: LiquidLogicLabs/git-action-rclone@v1
+- uses: LiquidLogicLabs/git-action-rclone@v2
   with:
     sources: data/
     rclone-config: |
@@ -143,7 +143,7 @@ No elevated permissions required.
 ### Sync with exclude filter
 
 ```yaml
-- uses: LiquidLogicLabs/git-action-rclone@v1
+- uses: LiquidLogicLabs/git-action-rclone@v2
   with:
     sources: build/
     mode: sync
@@ -159,7 +159,7 @@ No elevated permissions required.
 ### Self-signed certificate
 
 ```yaml
-- uses: LiquidLogicLabs/git-action-rclone@v1
+- uses: LiquidLogicLabs/git-action-rclone@v2
   with:
     sources: dist/
     remote-type: webdav
@@ -173,7 +173,7 @@ No elevated permissions required.
 ### Dry run for testing
 
 ```yaml
-- uses: LiquidLogicLabs/git-action-rclone@v1
+- uses: LiquidLogicLabs/git-action-rclone@v2
   with:
     sources: dist/
     remote-type: sftp
