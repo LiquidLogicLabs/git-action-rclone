@@ -1,3 +1,15 @@
+## [2.0.7](https://github.com/LiquidLogicLabs/git-action-rclone/compare/v2.0.6...v2.0.7) (2026-09-09)
+
+
+### Bug Fixes
+
+* **outputs:** actually set exit-code, which was declared but never written ([5ab296a](https://github.com/LiquidLogicLabs/git-action-rclone/commit/5ab296af45d4f4d3d7e841d26b06764abeff5c7c))
+* **release-notes:** categorise revert commits under Maintenance ([bbe8bf0](https://github.com/LiquidLogicLabs/git-action-rclone/commit/bbe8bf056cb841607e2ac22e6ef1c2861304e4a8))
+* **release-notes:** categorise the changelog by conventional-commit type ([b393dc0](https://github.com/LiquidLogicLabs/git-action-rclone/commit/b393dc09ddcb0d20512135c31ad7d13e94c1a8f7))
+* **release-notes:** drop the dead PR_LIST placeholder ([07b51e6](https://github.com/LiquidLogicLabs/git-action-rclone/commit/07b51e6f793b1d460a365a7d925a3cb60ca76f9a))
+
+
+
 ## [2.0.6](https://github.com/LiquidLogicLabs/git-action-rclone/compare/v2.0.5...v2.0.6) (2026-09-08)
 
 
