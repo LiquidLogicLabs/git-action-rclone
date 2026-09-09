@@ -176,6 +176,7 @@ async function transferSource(
       success: false,
       filesTransferred: 0,
       error: `Source path does not exist: ${resolvedSource}`,
+      exitCode: 1, // rclone was never invoked for this source
     };
   }
 
@@ -280,6 +281,7 @@ async function transferSource(
         success: false,
         filesTransferred: stats.filesTransferred,
         error: errorMsg,
+        exitCode,
       };
     }
 
@@ -288,6 +290,7 @@ async function transferSource(
       source,
       success: true,
       filesTransferred: stats.filesTransferred,
+      exitCode,
     };
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown error during transfer';
@@ -297,6 +300,7 @@ async function transferSource(
       success: false,
       filesTransferred: 0,
       error: msg,
+      exitCode: 1, // the process threw rather than exiting; no real code to report
     };
   }
 }

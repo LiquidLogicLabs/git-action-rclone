@@ -30,6 +30,12 @@ async function run(): Promise<void> {
     core.setOutput('transferred-files', totalFiles.toString());
     core.setOutput('success', allSucceeded ? 'true' : 'false');
 
+    // action.yml documents this as the exit code of the last rclone command,
+    // so report the last transfer's status. It was declared and documented but
+    // never set, so consumers always read an empty string.
+    const lastExitCode = results.length > 0 ? results[results.length - 1].exitCode : 0;
+    core.setOutput('exit-code', String(lastExitCode));
+
     if (failedSources.length > 0) {
       const summary = failedSources
         .map((r) => `  - ${r.source}: ${r.error}`)

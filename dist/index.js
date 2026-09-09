@@ -59388,6 +59388,11 @@ async function run() {
         const failedSources = results.filter((r) => !r.success);
         core.setOutput('transferred-files', totalFiles.toString());
         core.setOutput('success', allSucceeded ? 'true' : 'false');
+        // action.yml documents this as the exit code of the last rclone command,
+        // so report the last transfer's status. It was declared and documented but
+        // never set, so consumers always read an empty string.
+        const lastExitCode = results.length > 0 ? results[results.length - 1].exitCode : 0;
+        core.setOutput('exit-code', String(lastExitCode));
         if (failedSources.length > 0) {
             const summary = failedSources
                 .map((r) => `  - ${r.source}: ${r.error}`)
@@ -59842,6 +59847,7 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
             success: false,
             filesTransferred: 0,
             error: `Source path does not exist: ${resolvedSource}`,
+            exitCode: 1, // rclone was never invoked for this source
         };
     }
     const stat = fs.statSync(resolvedSource);
@@ -59928,6 +59934,7 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
                 success: false,
                 filesTransferred: stats.filesTransferred,
                 error: errorMsg,
+                exitCode,
             };
         }
         logger.info(`Transfer complete: ${source} (${stats.filesTransferred} files)`);
@@ -59935,6 +59942,7 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
             source,
             success: true,
             filesTransferred: stats.filesTransferred,
+            exitCode,
         };
     }
     catch (error) {
@@ -59945,6 +59953,7 @@ async function transferSource(source, remoteName, inputs, extraEnv, configPath, 
             success: false,
             filesTransferred: 0,
             error: msg,
+            exitCode: 1, // the process threw rather than exiting; no real code to report
         };
     }
 }

@@ -28,6 +28,12 @@ export interface TransferResult {
   success: boolean;
   filesTransferred: number;
   error?: string;
+  /**
+   * Exit status of the rclone invocation for this source. 0 on success. When
+   * the process could not be run at all (it threw rather than exiting), this
+   * is 1, since there is no real code to report.
+   */
+  exitCode: number;
 }
 
 export interface RcloneStats {
